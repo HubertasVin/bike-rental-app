@@ -1,0 +1,6 @@
+@BikeRentalApp_HostAddress = http://localhost:5270
+
+GET {{BikeRentalApp_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
