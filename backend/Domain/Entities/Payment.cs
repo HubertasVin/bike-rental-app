@@ -1,3 +1,7 @@
+using BikeRentalApp.Domain.Enums;
+
+namespace BikeRentalApp.Domain.Entities;
+
 public class Payment
 {
     public Guid Id { get; init; }

@@ -1,5 +1,26 @@
+using BikeRentalApp.Domain.Enums;
+
+namespace BikeRentalApp.Domain.Entities;
+
 public class Bike
 {
+    public Bike(
+        Guid id,
+        decimal rentPrice,
+        string model,
+        BikeStatus status,
+        LockStatus lockStatus,
+        Guid zoneId
+    )
+    {
+        Id = id;
+        RentPrice = rentPrice;
+        Model = model;
+        Status = status;
+        LockStatus = lockStatus;
+        ZoneId = zoneId;
+    }
+
     public Guid Id { get; init; }
     public decimal RentPrice { get; private set; }
     public string Model { get; private set; } = null!;
