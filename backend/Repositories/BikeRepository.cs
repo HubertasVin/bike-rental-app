@@ -28,7 +28,7 @@ public class BikeRepository : Repository<Bike>, IBikeRepository
         return bike;
     }
 
-    public async Task<Bike?> UpdateAsync(Bike bike)
+    public new async Task<Bike?> UpdateAsync(Bike bike)
     {
         var existingBike = await GetByIdAsync(bike.Id);
         if (existingBike == null)
