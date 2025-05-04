@@ -1,6 +1,6 @@
 using BikeRentalApp.Application.DTOs;
 
-namespace BikeRentalApp.Application.Services;
+namespace BikeRentalApp.Application.Services.Interfaces;
 
 public interface IBikeService
 {
