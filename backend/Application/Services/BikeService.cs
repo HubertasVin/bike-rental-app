@@ -1,5 +1,6 @@
 using BikeRentalApp.Application.DTOs;
 using BikeRentalApp.Application.Services.Interfaces;
+using BikeRentalApp.Repositories.Interfaces;
 using BikeRentalApp.Domain.Entities;
 using BikeRentalApp.Domain.Enums;
 using BikeRentalApp.Repositories;
@@ -29,15 +30,14 @@ public class BikeService : IBikeService
 
     public async Task<BikeDTO> CreateBikeAsync(CreateBikeDTO createBikeDto)
     {
-        var bike = new Bike
-        {
-            Id = Guid.NewGuid(),
-            RentPrice = createBikeDto.RentPrice,
-            Model = createBikeDto.Model,
-            Status = BikeStatus.Available,
-            LockStatus = LockStatus.Locked,
-            ZoneId = createBikeDto.ZoneId
-        };
+        var bike = new Bike(
+            Guid.NewGuid(),
+            createBikeDto.RentPrice,
+            createBikeDto.Model,
+            BikeStatus.Available,
+            LockStatus.Locked,
+            createBikeDto.ZoneId
+        );
 
         var createdBike = await _bikeRepository.CreateAsync(bike);
         return MapToDto(createdBike);
@@ -61,15 +61,14 @@ public class BikeService : IBikeService
             throw new ArgumentException("Invalid lock status");
         }
 
-        var updatedBike = new Bike
-        {
-            Id = existingBike.Id,
-            RentPrice = updateBikeDto.RentPrice,
-            Model = updateBikeDto.Model,
-            Status = bikeStatus,
-            LockStatus = lockStatus,
-            ZoneId = updateBikeDto.ZoneId
-        };
+        var updatedBike = new Bike(
+            existingBike.Id,
+            updateBikeDto.RentPrice,
+            updateBikeDto.Model,
+            bikeStatus,
+            lockStatus,
+            updateBikeDto.ZoneId
+        );
 
         var result = await _bikeRepository.UpdateAsync(updatedBike);
         return result != null ? MapToDto(result) : null;
