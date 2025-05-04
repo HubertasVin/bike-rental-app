@@ -15,7 +15,6 @@ public class ApplicationDbContext : DbContext
     public DbSet<Zone> Zones { get; set; } = null!;
     public DbSet<Payment> Payments { get; set; } = null!;
     public DbSet<Reservation> Reservations { get; set; } = null!;
-    public DbSet<BikeLocation> BikeLocations { get; set; } = null!;
     public DbSet<Report> Reports { get; set; } = null!;
     public DbSet<Authentication> Authentications { get; set; } = null!;
 
