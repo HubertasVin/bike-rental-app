@@ -1,6 +1,6 @@
 using BikeRentalApp.Domain.Entities;
 
-namespace BikeRentalApp.Repositories;
+namespace BikeRentalApp.Repositories.Interfaces;
 
 public interface IBikeRepository
 {
