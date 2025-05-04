@@ -1,4 +1,5 @@
 using BikeRentalApp.Application.DTOs;
+using BikeRentalApp.Application.Services.Interfaces;
 using BikeRentalApp.Domain.Entities;
 using BikeRentalApp.Domain.Enums;
 using BikeRentalApp.Repositories;
@@ -39,16 +40,6 @@ public class BikeService : IBikeService
         };
 
         var createdBike = await _bikeRepository.CreateAsync(bike);
-
-        var initialLocation = new BikeLocation
-        {
-            Id = Guid.NewGuid(),
-            BikeId = createdBike.Id,
-            ZoneId = createBikeDto.ZoneId
-        };
-
-        await _bikeRepository.AddBikeLocationAsync(initialLocation);
-
         return MapToDto(createdBike);
     }
 
