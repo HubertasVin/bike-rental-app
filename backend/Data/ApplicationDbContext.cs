@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using BikeRentalApp.Domain.Entities;
 
 namespace BikeRentalApp.Data;
 
