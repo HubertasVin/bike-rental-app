@@ -18,7 +18,7 @@ public class BikeController : ControllerBase
     /// <summary>
     /// Gets all bikes
     /// </summary>
-    /// <returns>List of all bikes</returns>
+    /// <response code="200">List of all bikes</response>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<BikeDTO>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll()
@@ -31,7 +31,7 @@ public class BikeController : ControllerBase
     /// Gets a bike by ID
     /// </summary>
     /// <param name="id">Bike ID</param>
-    /// <returns>Bike details</returns>
+    /// <response code="200">Bike details</response>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(BikeDTO), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -50,7 +50,7 @@ public class BikeController : ControllerBase
     /// Creates a new bike
     /// </summary>
     /// <param name="createBikeDto">New bike details</param>
-    /// <returns>Created bike</returns>
+    /// <response code="200">Created bike</response>
     [HttpPost]
     [ProducesResponseType(typeof(BikeDTO), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -65,7 +65,7 @@ public class BikeController : ControllerBase
     /// </summary>
     /// <param name="id">Bike ID</param>
     /// <param name="updateBikeDto">Updated bike details</param>
-    /// <returns>Updated bike</returns>
+    /// <response code="200">Updated bike</response>
     [HttpPut("{id:guid}")]
     [ProducesResponseType(typeof(BikeDTO), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -92,7 +92,7 @@ public class BikeController : ControllerBase
     /// Deletes a bike
     /// </summary>
     /// <param name="id">Bike ID</param>
-    /// <returns>No content</returns>
+    /// <response code="200">No content</response>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -110,7 +110,7 @@ public class BikeController : ControllerBase
     /// <summary>
     /// Gets all available bikes
     /// </summary>
-    /// <returns>List of available bikes</returns>
+    /// <response code="200">List of available bikes</response>
     [HttpGet("available")]
     [ProducesResponseType(typeof(IEnumerable<BikeDTO>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAvailable()
@@ -123,7 +123,7 @@ public class BikeController : ControllerBase
     /// Gets all bikes in a specific zone
     /// </summary>
     /// <param name="zoneId">Zone ID</param>
-    /// <returns>List of bikes in the zone</returns>
+    /// <response code="200">List of bikes in the zone</response>
     [HttpGet("zone/{zoneId:guid}")]
     [ProducesResponseType(typeof(IEnumerable<BikeDTO>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetByZone(Guid zoneId)
