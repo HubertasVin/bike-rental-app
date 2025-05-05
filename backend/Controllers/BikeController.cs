@@ -131,4 +131,21 @@ public class BikeController : ControllerBase
         var bikes = await _bikeService.GetBikesByZoneAsync(zoneId);
         return Ok(bikes);
     }
+
+    /// <summary>
+    /// Assigns a bike to a different zone.
+    /// </summary>
+    /// <param name="id">The bike’s ID</param>
+    /// <param name="zoneId">The target zone’s ID</param>
+    /// <response code="200">Returns the updated bike</response>
+    /// <response code="404">If the bike doesn’t exist</response>
+    [HttpPut("{id:guid}/zone/{zoneId:guid}")]
+    [ProducesResponseType(typeof(BikeDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> AssignZone(Guid id, Guid zoneId)
+    {
+        var bike = await _bikeService.AssignZoneAsync(id, zoneId);
+        if (bike == null) return NotFound();
+        return Ok(bike);
+    }
 }

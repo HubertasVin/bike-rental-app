@@ -91,6 +91,26 @@ public class BikeService : IBikeService
         return bikes.Select(MapToDto);
     }
 
+    public async Task<BikeDTO?> AssignZoneAsync(Guid bikeId, Guid zoneId)
+    {
+        var existing = await _bikeRepository.GetByIdAsync(bikeId);
+        if (existing == null) return null;
+
+        var updated = new Bike(
+            existing.Id,
+            existing.RentPrice,
+            existing.Model,
+            existing.Status,
+            existing.LockStatus,
+            zoneId
+        );
+
+        var result = await _bikeRepository.UpdateAsync(updated);
+        return result != null
+            ? MapToDto(result)
+            : null;
+    }
+
     public static BikeDTO MapToDto(Bike bike)
     {
         return new BikeDTO
