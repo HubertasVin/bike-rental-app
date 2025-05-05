@@ -91,7 +91,7 @@ public class BikeService : IBikeService
         return bikes.Select(MapToDto);
     }
 
-    private static BikeDTO MapToDto(Bike bike)
+    public static BikeDTO MapToDto(Bike bike)
     {
         return new BikeDTO
         {
