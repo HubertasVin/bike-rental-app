@@ -1,3 +1,5 @@
+namespace BikeRentalApp.Domain.Entities;
+
 public class User
 {
     public Guid Id { get; init; }
@@ -8,7 +10,6 @@ public class User
     public ICollection<Rental> Rentals { get; private set; } = new List<Rental>();
     public ICollection<Reservation> Reservations { get; private set; } = new List<Reservation>();
     public ICollection<Payment> Payments { get; private set; } = new List<Payment>();
-    public ICollection<BikeLocation> BikeLocations { get; private set; } = new List<BikeLocation>();
     public ICollection<Report> Reports { get; private set; } = new List<Report>();
     public ICollection<Authentication> Authentications { get; private set; } = new List<Authentication>();
 }

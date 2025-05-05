@@ -3,4 +3,43 @@
 GET {{BikeRentalApp_HostAddress}}/weatherforecast/
 Accept: application/json
 
-###
+### Get all bikes
+GET {{BikeRentalApp_HostAddress}}/api/bike
+Accept: application/json
+
+### Get bike by ID
+GET {{BikeRentalApp_HostAddress}}/api/bike/e21afdd8-898d-40a0-9a66-e3e320277b31
+Accept: application/json
+
+### Get available bikes
+GET {{BikeRentalApp_HostAddress}}/api/bike/available
+Accept: application/json
+
+### Get bikes by zone
+GET {{BikeRentalApp_HostAddress}}/api/bike/zone/b5f3a4db-5f43-4422-b9d3-7c5c2924ab93
+Accept: application/json
+
+### Create a new bike
+POST {{BikeRentalApp_HostAddress}}/api/bike
+Content-Type: application/json
+
+{
+  "rentPrice": 10.50,
+  "model": "Mountain Bike X3",
+  "zoneId": "b5f3a4db-5f43-4422-b9d3-7c5c2924ab93"
+}
+
+### Update a bike
+PUT {{BikeRentalApp_HostAddress}}/api/bike/e21afdd8-898d-40a0-9a66-e3e320277b31
+Content-Type: application/json
+
+{
+  "rentPrice": 12.75,
+  "model": "Mountain Bike X3 Pro",
+  "status": "Rented",
+  "lockStatus": "Locked",
+  "zoneId": "b5f3a4db-5f43-4422-b9d3-7c5c2924ab93"
+}
+
+### Delete a bike
+DELETE {{BikeRentalApp_HostAddress}}/api/bike/e21afdd8-898d-40a0-9a66-e3e320277b31

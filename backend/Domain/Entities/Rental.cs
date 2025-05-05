@@ -1,3 +1,5 @@
+namespace BikeRentalApp.Domain.Entities;
+
 public class Rental
 {
     public Guid Id { get; init; }
