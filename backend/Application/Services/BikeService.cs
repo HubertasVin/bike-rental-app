@@ -91,6 +91,12 @@ public class BikeService : IBikeService
         return bikes.Select(MapToDto);
     }
 
+    public async Task<int> GetBikesCountByZoneAsync(Guid zoneId)
+    {
+        var bikes = await _bikeRepository.GetBikesByZoneAsync(zoneId);
+        return bikes.Count();
+    }
+
     public async Task<BikeDTO?> AssignZoneAsync(Guid bikeId, Guid zoneId)
     {
         var existing = await _bikeRepository.GetByIdAsync(bikeId);

@@ -133,6 +133,19 @@ public class BikeController : ControllerBase
     }
 
     /// <summary>
+    /// Gets number of bikes in a specific zone
+    /// </summary>
+    /// <param name="zoneId">Zone ID</param>
+    /// <response code="200">Number of bikes in the zone</response>
+    [HttpGet("zone/{zoneId:guid}/number")]
+    [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetNumberByZone(Guid zoneId)
+    {
+        var n = await _bikeService.GetBikesCountByZoneAsync(zoneId);
+        return Ok(n);
+    }
+
+    /// <summary>
     /// Assigns a bike to a different zone.
     /// </summary>
     /// <param name="id">The bike’s ID</param>

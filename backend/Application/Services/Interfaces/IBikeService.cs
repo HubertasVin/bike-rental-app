@@ -11,5 +11,6 @@ public interface IBikeService
     Task<bool> DeleteBikeAsync(Guid id);
     Task<IEnumerable<BikeDTO>> GetAvailableBikesAsync();
     Task<IEnumerable<BikeDTO>> GetBikesByZoneAsync(Guid zoneId);
+    Task<int> GetBikesCountByZoneAsync(Guid zoneId);
     Task<BikeDTO?> AssignZoneAsync(Guid bikeId, Guid zoneId);
 }
