@@ -19,6 +19,10 @@ public class ZoneService : IZoneService
         => (await _zoneRepository.GetAllAsync())
            .Select(MapToDto);
 
+    public async Task<IEnumerable<ZoneWithBikesNumberDTO>> GetAllZonesWithBikesCountAsync()
+        => (await _zoneRepository.GetAllAsync())
+           .Select(MapToWithNumberDto);
+
     public async Task<ZoneDTO?> GetZoneByIdAsync(Guid id)
         => (await _zoneRepository.GetByIdAsync(id)) is Zone z
            ? MapToDto(z)
@@ -78,4 +82,18 @@ public class ZoneService : IZoneService
             Capacity   = zone.Capacity,
             Bikes      = zone.Bikes.Select(BikeService.MapToDto).ToList()
         };
+
+    private static ZoneWithBikesNumberDTO MapToWithNumberDto(Zone zone)
+    => new ZoneWithBikesNumberDTO
+    {
+        Id           = zone.Id,
+        Name         = zone.Name,
+        Address      = zone.Address,
+        Latitude1    = zone.Latitude1,
+        Longitude1   = zone.Longitude1,
+        Latitude2    = zone.Latitude2,
+        Longitude2   = zone.Longitude2,
+        Capacity     = zone.Capacity,
+        BikesNumber  = zone.Bikes.Count
+    };
 }

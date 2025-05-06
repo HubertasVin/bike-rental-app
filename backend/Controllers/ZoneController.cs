@@ -29,6 +29,19 @@ namespace BikeRentalApp.Controllers
         }
 
         /// <summary>
+        /// Gets all zones with their bike counts.
+        /// </summary>
+        /// <returns>A list of all zones with bike counts.</returns>
+        /// <response code="200">Returns the list of zones with bike counts.</response>
+        [HttpGet("bikes_count")]
+        [ProducesResponseType(typeof(IEnumerable<ZoneWithBikesNumberDTO>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllWithBikeCounts()
+        {
+            var zones = await _zoneService.GetAllZonesWithBikesCountAsync();
+            return Ok(zones);
+        }
+
+        /// <summary>
         /// Gets a specific zone by its unique ID.
         /// </summary>
         /// <param name="id">The GUID of the zone to retrieve.</param>
