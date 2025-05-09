@@ -1,4 +1,3 @@
-// Application/Services/ZoneService.cs
 using BikeRentalApp.Application.DTOs;
 using BikeRentalApp.Application.Services.Interfaces;
 using BikeRentalApp.Domain.Entities;
