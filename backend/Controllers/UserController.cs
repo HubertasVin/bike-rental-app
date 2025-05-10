@@ -13,11 +13,13 @@ public class UserController : ControllerBase
 {
     private readonly ApplicationDbContext _db;
     private readonly IConfiguration _config;
+    private readonly JwtService _jwtService;
 
-    public UserController(ApplicationDbContext db, IConfiguration config)
+    public UserController(ApplicationDbContext db, IConfiguration config, JwtService jwtService)
     {
         _db = db;
         _config = config;
+        _jwtService = jwtService;
     }
 
     [HttpPost("register")]
@@ -42,29 +44,8 @@ public class UserController : ControllerBase
         if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
             return Unauthorized("Invalid credentials");
 
-        var token = GenerateJwtToken(user);
+        var token = _jwtService.GenerateJwtToken(user);
         return Ok(new AuthDTO(token));
     }
 
-    private string GenerateJwtToken(User user)
-    {
-        var claims = new[]
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim("name", user.Name)
-        };
-
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-        var token = new JwtSecurityToken(
-            issuer: _config["Jwt:Issuer"],
-            audience: _config["Jwt:Audience"],
-            claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(_config["Jwt:ExpireMinutes"])),
-            signingCredentials: creds);
-
-        return new JwtSecurityTokenHandler().WriteToken(token);
-    }
 }
