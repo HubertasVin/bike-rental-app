@@ -2,6 +2,8 @@ using System.Reflection;
 using System.Text;
 using BikeRentalApp.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -26,6 +28,16 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(jwtSettings["Key"]!))
     };
+});
+
+// should make [Authorize] implicit
+builder.Services.AddControllers(options =>
+{
+    var policy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+
+    options.Filters.Add(new AuthorizeFilter(policy));
 });
 
 

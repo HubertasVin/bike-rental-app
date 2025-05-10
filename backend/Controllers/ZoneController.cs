@@ -21,7 +21,6 @@ namespace BikeRentalApp.Controllers
         /// </summary>
         /// <returns>A list of all zones.</returns>
         /// <response code="200">Returns the list of zones.</response>
-        [Authorize]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<ZoneDTO>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAll()
@@ -35,7 +34,6 @@ namespace BikeRentalApp.Controllers
         /// </summary>
         /// <returns>A list of all zones with bike counts.</returns>
         /// <response code="200">Returns the list of zones with bike counts.</response>
-        [Authorize]
         [HttpGet("bikes_count")]
         [ProducesResponseType(typeof(IEnumerable<ZoneWithBikesNumberDTO>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllWithBikeCounts()
@@ -51,7 +49,6 @@ namespace BikeRentalApp.Controllers
         /// <returns>The requested zone.</returns>
         /// <response code="200">Returns the zone.</response>
         /// <response code="404">If the zone is not found.</response>
-        [Authorize]
         [HttpGet("{id:guid}")]
         [ProducesResponseType(typeof(ZoneDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -69,7 +66,6 @@ namespace BikeRentalApp.Controllers
         /// <returns>The newly created zone.</returns>
         /// <response code="201">Returns the newly created zone.</response>
         /// <response code="400">If the input is invalid.</response>
-        [Authorize]
         [HttpPost]
         [ProducesResponseType(typeof(ZoneDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -88,7 +84,6 @@ namespace BikeRentalApp.Controllers
         /// <response code="200">Returns the updated zone.</response>
         /// <response code="400">If the input is invalid.</response>
         /// <response code="404">If the zone does not exist.</response>
-        [Authorize]
         [HttpPut("{id:guid}")]
         [ProducesResponseType(typeof(ZoneDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -113,7 +108,6 @@ namespace BikeRentalApp.Controllers
         /// <param name="id">The GUID of the zone to delete.</param>
         /// <response code="204">Zone was successfully deleted.</response>
         /// <response code="404">If the zone was not found.</response>
-        [Authorize]
         [HttpDelete("{id:guid}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

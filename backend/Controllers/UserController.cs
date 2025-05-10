@@ -4,6 +4,7 @@ using System.Text;
 using BikeRentalApp.Application.DTOs;
 using BikeRentalApp.Data;
 using BikeRentalApp.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
@@ -22,6 +23,7 @@ public class UserController : ControllerBase
         _jwtService = jwtService;
     }
 
+    [AllowAnonymous]
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterDTO request)
     {
@@ -37,6 +39,8 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
+
+    [AllowAnonymous]
     [HttpPost("login")]
     public IActionResult Login(LoginDTO request)
     {
