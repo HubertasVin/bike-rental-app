@@ -5,7 +5,6 @@ import { RouterLink, RouterView } from 'vue-router'
 <template>
   <div class="app-container">
     <nav class="navigation">
-      <RouterLink to="/">Home</RouterLink>
       <RouterLink to="/about">About</RouterLink>
       <RouterLink to="/login">Login</RouterLink>
       <RouterLink to="/register">Register</RouterLink>
@@ -55,7 +54,7 @@ h3,
 h4,
 h5,
 h6 {
-  color: var(--text-color);
+  color: var(--light-text);
   margin-bottom: 0.5rem;
 }
 
