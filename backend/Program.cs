@@ -30,6 +30,16 @@ builder.Services.Scan(scan => scan
     .WithScopedLifetime()
 );
 
+builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("AllowSpecificOrigin", policy =>
+        {
+            policy.WithOrigins("http://localhost:5173")
+                .AllowAnyHeader() 
+                .AllowAnyMethod();
+        });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -69,6 +79,7 @@ app.MapGet("/weatherforecast", () =>
 })
 .WithName("GetWeatherForecast");
 
+app.UseCors("AllowSpecificOrigin");
 app.Run();
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
