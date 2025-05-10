@@ -1,8 +1,33 @@
 using System.Reflection;
+using System.Text;
 using BikeRentalApp.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    var jwtSettings = builder.Configuration.GetSection("Jwt");
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(jwtSettings["Key"]!))
+    };
+});
+
 
 // Add database services
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -46,6 +71,11 @@ if (app.Environment.IsDevelopment())
         dbContext.Database.Migrate();
     }
 }
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+
 app.MapControllers();
 
 app.UseHttpsRedirection();
