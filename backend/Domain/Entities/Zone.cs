@@ -2,6 +2,27 @@ namespace BikeRentalApp.Domain.Entities;
 
 public class Zone
 {
+    public Zone(
+        Guid id,
+        string name,
+        string address,
+        double latitude1,
+        double longitude1,
+        double latitude2,
+        double longitude2,
+        int capacity
+    )
+    {
+        Id = id;
+        Name = name;
+        Address = address;
+        Latitude1 = latitude1;
+        Longitude1 = longitude1;
+        Latitude2 = latitude2;
+        Longitude2 = longitude2;
+        Capacity = capacity;
+        Bikes = new List<Bike>();
+    }
     public Guid Id { get; init; }
     public string Name { get; private set; } = null!;
     public string Address { get; private set; } = null!;
