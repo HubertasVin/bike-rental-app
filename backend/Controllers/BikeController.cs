@@ -1,5 +1,6 @@
 using BikeRentalApp.Application.DTOs;
 using BikeRentalApp.Application.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BikeRentalApp.Controllers;
@@ -19,6 +20,7 @@ public class BikeController : ControllerBase
     /// Gets all bikes
     /// </summary>
     /// <response code="200">List of all bikes</response>
+    [Authorize]
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<BikeDTO>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll()
@@ -32,6 +34,7 @@ public class BikeController : ControllerBase
     /// </summary>
     /// <param name="id">Bike ID</param>
     /// <response code="200">Bike details</response>
+    [Authorize]
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(BikeDTO), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -51,6 +54,7 @@ public class BikeController : ControllerBase
     /// </summary>
     /// <param name="createBikeDto">New bike details</param>
     /// <response code="200">Created bike</response>
+    [Authorize]
     [HttpPost]
     [ProducesResponseType(typeof(BikeDTO), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -66,6 +70,7 @@ public class BikeController : ControllerBase
     /// <param name="id">Bike ID</param>
     /// <param name="updateBikeDto">Updated bike details</param>
     /// <response code="200">Updated bike</response>
+    [Authorize]
     [HttpPut("{id:guid}")]
     [ProducesResponseType(typeof(BikeDTO), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -93,6 +98,7 @@ public class BikeController : ControllerBase
     /// </summary>
     /// <param name="id">Bike ID</param>
     /// <response code="200">No content</response>
+    [Authorize]
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -111,6 +117,7 @@ public class BikeController : ControllerBase
     /// Gets all available bikes
     /// </summary>
     /// <response code="200">List of available bikes</response>
+    [Authorize]
     [HttpGet("available")]
     [ProducesResponseType(typeof(IEnumerable<BikeDTO>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAvailable()
@@ -124,6 +131,7 @@ public class BikeController : ControllerBase
     /// </summary>
     /// <param name="zoneId">Zone ID</param>
     /// <response code="200">List of bikes in the zone</response>
+    [Authorize]
     [HttpGet("zone/{zoneId:guid}")]
     [ProducesResponseType(typeof(IEnumerable<BikeDTO>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetByZone(Guid zoneId)
@@ -137,6 +145,7 @@ public class BikeController : ControllerBase
     /// </summary>
     /// <param name="zoneId">Zone ID</param>
     /// <response code="200">Number of bikes in the zone</response>
+    [Authorize]
     [HttpGet("zone/{zoneId:guid}/number")]
     [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetNumberByZone(Guid zoneId)
@@ -152,6 +161,7 @@ public class BikeController : ControllerBase
     /// <param name="zoneId">The target zone’s ID</param>
     /// <response code="200">Returns the updated bike</response>
     /// <response code="404">If the bike doesn’t exist</response>
+    [Authorize]
     [HttpPut("{id:guid}/zone/{zoneId:guid}")]
     [ProducesResponseType(typeof(BikeDTO), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
