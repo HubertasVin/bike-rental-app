@@ -1,27 +1,54 @@
 @BikeRentalApp_HostAddress = http://localhost:5270
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0MTE4NGM5Mi0xZTc4LTQxZjItOTRmNy02NjExOThhNTk2ZTIiLCJlbWFpbCI6InRlc3RAZXhhbXBsZS5jb20iLCJuYW1lIjoiVGVzdCBVc2VyIiwiZXhwIjoxNzQ2OTcxODY5LCJpc3MiOiJodHRwczovL2xvY2FsaG9zdDo1MjcwIiwiYXVkIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NTI3MCJ9.1b5c5SVd-h8NkfQ3CkpUrwOJRCHzdQ6sEE80BTSHPEs
+@reportId = f1e3fd3f-7848-452a-96d1-c8cce6422b61
 
 GET {{BikeRentalApp_HostAddress}}/weatherforecast/
 Accept: application/json
 
+### Register user
+POST {{BikeRentalApp_HostAddress}}/api/user/register
+Content-Type: application/json
+
+{
+  "name": "Test User",
+  "email": "test@example.com",
+  "password": "yourpassword"
+}
+
+### Login and get JWT token
+POST {{BikeRentalApp_HostAddress}}/api/user/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "yourpassword"
+}
+
+
 ### Get all bikes
 GET {{BikeRentalApp_HostAddress}}/api/bike
 Accept: application/json
+Authorization: Bearer {{token}}
 
 ### Get bike by ID
 GET {{BikeRentalApp_HostAddress}}/api/bike/e21afdd8-898d-40a0-9a66-e3e320277b31
 Accept: application/json
+Authorization: Bearer {{token}}
 
 ### Get available bikes
 GET {{BikeRentalApp_HostAddress}}/api/bike/available
 Accept: application/json
+Authorization: Bearer {{token}}
 
 ### Get bikes by zone
 GET {{BikeRentalApp_HostAddress}}/api/bike/zone/b5f3a4db-5f43-4422-b9d3-7c5c2924ab93
 Accept: application/json
+Authorization: Bearer {{token}}
 
 ### Create a new bike
 POST {{BikeRentalApp_HostAddress}}/api/bike
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
   "rentPrice": 10.50,
@@ -32,7 +59,7 @@ Content-Type: application/json
 ### Update a bike
 PUT {{BikeRentalApp_HostAddress}}/api/bike/e21afdd8-898d-40a0-9a66-e3e320277b31
 Content-Type: application/json
-
+Authorization: Bearer {{token}}
 {
   "rentPrice": 12.75,
   "model": "Mountain Bike X3 Pro",
@@ -43,3 +70,54 @@ Content-Type: application/json
 
 ### Delete a bike
 DELETE {{BikeRentalApp_HostAddress}}/api/bike/e21afdd8-898d-40a0-9a66-e3e320277b31
+Authorization: Bearer {{token}}
+
+### Get all reports
+GET {{BikeRentalApp_HostAddress}}/api/report
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Get report by ID
+GET {{BikeRentalApp_HostAddress}}/api/report/{reportId}
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Create a new report
+POST {{BikeRentalApp_HostAddress}}/api/report
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{token}}
+{
+  "bikeId": "3959e02f-afe7-4be6-baf5-baf727fedd46",
+  "userId": "41184c92-1e78-41f2-94f7-661198a596e2",
+  "type": "Damage",
+  "description": "Rear wheel is bent"
+}
+
+### Update an existing report
+PUT {{BikeRentalApp_HostAddress}}/api/report/{{reportId}}
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{token}}
+
+{
+  "bikeId": "3959e02f-afe7-4be6-baf5-baf727fedd46",
+  "userId": "41184c92-1e78-41f2-94f7-661198a596e2",
+  "type": "Maintenance",
+  "description": "Chain is loose"
+}
+
+### Delete a report
+DELETE {{BikeRentalApp_HostAddress}}/api/report/{{reportId}}
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Get reports by bike ID
+GET {{BikeRentalApp_HostAddress}}/api/report/bike/b5f3a4db-5f43-4422-b9d3-7c5c2924ab93
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Get reports by user ID
+GET {{BikeRentalApp_HostAddress}}/api/report/user/e0123456-7890-1234-5678-90abcdef1234
+Accept: application/json
+Authorization: Bearer {{token}}
