@@ -60,6 +60,7 @@
 
             // Store authentication token (from real API response)
             localStorage.setItem('user_authenticated', 'true')
+            localStorage.setItem('user_email', email.value)
 
             // Redirect to main app after successful registration
             router.push('/map')

@@ -24,6 +24,26 @@ apiClient.interceptors.request.use(
     }
 )
 
+// Add response interceptor for handling auth errors
+apiClient.interceptors.response.use(
+    (response) => {
+        return response
+    },
+    (error) => {
+        if (error.response && error.response.status === 401) {
+            // Handle unauthorized access
+            localStorage.removeItem('auth_token')
+            localStorage.removeItem('user_authenticated')
+            localStorage.removeItem('user_email')
+            // Redirect to login page if using in a browser environment
+            if (typeof window !== 'undefined') {
+                window.location.href = '/login'
+            }
+        }
+        return Promise.reject(error)
+    }
+)
+
 // General API methods
 const fetch = (endpoint: string) => {
     return apiClient.get(endpoint)
@@ -62,6 +82,7 @@ const register = (userData: { email: string; password: string }) => {
 const logout = () => {
     localStorage.removeItem('auth_token')
     localStorage.removeItem('user_authenticated')
+    localStorage.removeItem('user_email')
     // Return a resolved promise to maintain function signature
     return Promise.resolve({ status: 200, data: { success: true } })
 }
