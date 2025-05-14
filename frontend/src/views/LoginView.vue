@@ -1,6 +1,219 @@
+<script setup lang="ts">
+    import { ref } from 'vue'
+    import { useRouter } from 'vue-router'
+    import { api } from '@/services/api-service'
+
+    // Form data
+    const email = ref('')
+    const password = ref('')
+    const errorMessage = ref('')
+    const isSubmitting = ref(false)
+
+    const router = useRouter()
+
+    const handleSubmit = async () => {
+        // Reset error message
+        errorMessage.value = ''
+
+        // Form validation
+        if (!email.value || !password.value) {
+            errorMessage.value = 'Please fill in all fields'
+            return
+        }
+
+        // Basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (!emailRegex.test(email.value)) {
+            errorMessage.value = 'Please enter a valid email address'
+            return
+        }
+
+        try {
+            isSubmitting.value = true
+
+            // This would typically call your backend API
+            // Example: await api.post('/api/auth/login', { email: email.value, password: password.value })
+
+            // For demo purposes, simulating API call with timeout
+            await new Promise(resolve => setTimeout(resolve, 1000))
+
+            console.log('Login attempted with:', { email: email.value, password: password.value })
+
+            // Store authentication token (from real API response)
+            localStorage.setItem('user_authenticated', 'true')
+
+            // Redirect to main app after successful login
+            router.push('/map')
+        } catch (error: any) {
+            console.error('Login error:', error)
+            errorMessage.value = error.response?.data?.message || 'An error occurred during login'
+        } finally {
+            isSubmitting.value = false
+        }
+    }
+
+    const goToRegister = () => {
+        router.push('/register')
+    }
+
+    const handleForgotPassword = () => {
+        alert('Password reset functionality would be implemented here')
+        // In a real app, this would redirect to a password reset page or show a modal
+    }
+</script>
+
 <template>
-  <div class="login">
-    <h1>Login Page</h1>
-    <p>This is a blank login page for testing purposes.</p>
-  </div>
+    <div class="auth-container">
+        <div class="auth-form">
+            <h1>LOGIN</h1>
+
+            <form @submit.prevent="handleSubmit">
+                <div class="form-group">
+                    <input type="email"
+                           v-model="email"
+                           placeholder="Your Email"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <input type="password"
+                           v-model="password"
+                           placeholder="Your Password"
+                           required />
+                </div>
+
+                <div class="form-actions">
+                    <button type="button"
+                            class="text-button"
+                            @click="handleForgotPassword">
+                        Forgot password?
+                    </button>
+                </div>
+
+                <div v-if="errorMessage" class="error-message">
+                    {{ errorMessage }}
+                </div>
+
+                <button type="submit"
+                        class="submit-button"
+                        :disabled="isSubmitting">
+                    {{ isSubmitting ? 'Signing In...' : 'Sign In' }}
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <p>
+                    Don't have an account?
+                    <button type="button"
+                            class="text-button"
+                            @click="goToRegister">
+                        Register
+                    </button>
+                </p>
+            </div>
+        </div>
+    </div>
 </template>
+
+<style scoped>
+    .auth-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 80vh;
+        padding: 20px;
+    }
+
+    .auth-form {
+        width: 100%;
+        max-width: 400px;
+        padding: 20px;
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 30px;
+        font-weight: 500;
+        color: #333;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    input {
+        width: 100%;
+        padding: 15px;
+        border: 1px solid #ccc;
+        border-radius: 30px;
+        font-size: 16px;
+        outline: none;
+        transition: border-color 0.3s;
+    }
+
+        input:focus {
+            border-color: #069;
+        }
+
+    .form-actions {
+        display: flex;
+        justify-content: center;
+        margin: 15px 0;
+    }
+
+    .text-button {
+        background: none;
+        border: none;
+        color: #666;
+        cursor: pointer;
+        font-size: 14px;
+        text-decoration: none;
+        transition: color 0.3s;
+        padding: 0;
+    }
+
+        .text-button:hover {
+            color: #069;
+            text-decoration: underline;
+        }
+
+    .submit-button {
+        width: 100%;
+        padding: 15px;
+        background-color: #009688;
+        color: white;
+        border: none;
+        border-radius: 30px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        margin-top: 15px;
+    }
+
+        .submit-button:hover {
+            background-color: #00796b;
+        }
+
+        .submit-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+    .auth-footer {
+        margin-top: 30px;
+        text-align: center;
+        font-size: 14px;
+        color: #666;
+    }
+
+    .error-message {
+        color: #f44336;
+        font-size: 14px;
+        text-align: center;
+        margin: 10px 0;
+        padding: 10px;
+        background-color: #ffebee;
+        border-radius: 4px;
+    }
+</style>
