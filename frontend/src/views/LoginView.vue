@@ -130,13 +130,16 @@
         width: 100%;
         max-width: 400px;
         padding: 20px;
+        background-color: #ffffff; /* Always white background */
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
 
     h1 {
         text-align: center;
         margin-bottom: 30px;
         font-weight: 500;
-        color: #333;
+        color: #333; /* Dark text for headings regardless of theme */
     }
 
     .form-group {
@@ -151,6 +154,8 @@
         font-size: 16px;
         outline: none;
         transition: border-color 0.3s;
+        background-color: #ffffff; /* Always white background */
+        color: #333; /* Always dark text for input */
     }
 
         input:focus {
@@ -182,7 +187,7 @@
     .submit-button {
         width: 100%;
         padding: 15px;
-        background-color: #009688;
+        background-color: #009688; /* Keep original color */
         color: white;
         border: none;
         border-radius: 30px;
@@ -194,7 +199,7 @@
     }
 
         .submit-button:hover {
-            background-color: #00796b;
+            background-color: #00796b; /* Keep original hover color */
         }
 
         .submit-button:disabled {
