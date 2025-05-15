@@ -8,12 +8,21 @@
       <button @click="addZone">Add Custom Zone</button>
       <button @click="clearOverlays">Clear Overlays</button>
     </div>
+    <div>
+      <input
+        type="text"
+        v-model="authToken"
+        placeholder="Enter AUTH token"
+        @keyup.enter="setAuthToken"
+      />
+    </div>
   </div>
 </template>
 
 <script>
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import { api } from '@/services/api-service'
 
 export default {
   name: 'MapView',
@@ -31,12 +40,20 @@ export default {
         fillOpacity: 0.2,
         fillColor: '#3388ff',
       },
+      authToken: localStorage.getItem('authToken') || '',
+      zones: [],
+      isLoading: false,
+      error: null,
     }
   },
   mounted() {
     this.initMap()
-
     this.createBikeIcon()
+
+    if (this.authToken) {
+      console.log('Auth token loaded from storage')
+      this.fetchAndDisplayZones()
+    }
   },
   methods: {
     initMap() {
@@ -210,6 +227,138 @@ export default {
         this.map.removeLayer(overlay)
       })
       this.overlays = []
+    },
+
+    setAuthToken() {
+      if (this.authToken) {
+        api.setAuthToken(this.authToken)
+        console.log('Auth token saved:', this.authToken)
+        // Fetch zones after setting token
+        this.fetchAndDisplayZones()
+      }
+    },
+
+    async fetchAndDisplayZones() {
+      try {
+        this.isLoading = true
+        this.error = null
+
+        const response = await api.getZones()
+        this.zones = response.data
+
+        // Display zones on the map
+        this.displayZones()
+      } catch (error) {
+        console.error('Error fetching zones:', error)
+        this.error = 'Failed to fetch zones. Please try again.'
+      } finally {
+        this.isLoading = false
+      }
+    },
+
+    displayZones() {
+      if (!this.zones || !this.zones.length) return
+
+      this.zones.forEach((zone) => {
+        // Create the rectangle for the zone using the coordinates
+        const bounds = [
+          [zone.latitude1, zone.longitude1], // top-left corner
+          [zone.latitude2, zone.longitude2], // bottom-right corner
+        ]
+
+        const rectangle = L.rectangle(bounds, {
+          color: '#3388ff',
+          weight: 2,
+          opacity: 0.7,
+          fillOpacity: 0.2,
+          fillColor: '#3388ff',
+        }).addTo(this.map)
+
+        // Add zone name as tooltip
+        rectangle.bindTooltip(zone.name, {
+          permanent: true,
+          direction: 'center',
+          className: 'zone-label',
+        })
+
+        // Store zone rectangle for later reference
+        this.overlays.push(rectangle)
+
+        // Add bike markers if there are bikes in the zone
+        if (zone.bikes && zone.bikes.length > 0) {
+          this.displayBikesInZone(zone)
+        }
+      })
+
+      // Adjust map view to fit all zones
+      if (this.zones.length > 0) {
+        const allBounds = []
+        this.zones.forEach((zone) => {
+          allBounds.push([zone.latitude1, zone.longitude1])
+          allBounds.push([zone.latitude2, zone.longitude2])
+        })
+
+        if (allBounds.length > 0) {
+          this.map.fitBounds(allBounds)
+        }
+      }
+    },
+
+    displayBikesInZone(zone) {
+      if (!zone.bikes || !zone.bikes.length) return
+
+      zone.bikes.forEach((bike) => {
+        // Calculate a random position within the zone rectangle for each bike
+        const lat = zone.latitude1 + (zone.latitude2 - zone.latitude1) * Math.random()
+        const lng = zone.longitude1 + (zone.longitude2 - zone.longitude1) * Math.random()
+
+        const marker = L.marker([lat, lng], { icon: this.bikeIcon }).addTo(this.map)
+
+        const popupContent = L.DomUtil.create('div', 'custom-popup')
+        popupContent.innerHTML = `
+          <h3>Bike #${bike.id.substring(0, 8)}</h3>
+          <p>Model: ${bike.model || 'Standard'}</p>
+          <p>Status: ${bike.status || 'Available'}</p>
+          <p>Price: ${bike.rentPrice}€/min</p>
+          <button class="popup-button rent-button" data-bike-id="${bike.id}">Rent Bike</button>
+          <button class="popup-button info-button" data-bike-id="${bike.id}">More Info</button>
+        `
+
+        const popup = L.popup().setContent(popupContent)
+        marker.bindPopup(popup)
+
+        marker.on('popupopen', () => {
+          const rentButton = document.querySelector('.rent-button')
+          const infoButton = document.querySelector('.info-button')
+
+          if (rentButton) {
+            rentButton.addEventListener('click', () => {
+              this.rentBike(bike.id)
+              popup.close()
+            })
+          }
+
+          if (infoButton) {
+            infoButton.addEventListener('click', () => {
+              this.showBikeInfo(bike)
+            })
+          }
+        })
+
+        this.overlays.push(marker)
+      })
+    },
+
+    rentBike(bikeId) {
+      alert(`Starting rental process for bike: ${bikeId}`)
+    },
+
+    showBikeInfo(bike) {
+      alert(`Bike Details:
+Model: ${bike.model}
+Status: ${bike.status}
+Lock Status: ${bike.lockStatus}
+ID: ${bike.id}`)
     },
   },
 }
