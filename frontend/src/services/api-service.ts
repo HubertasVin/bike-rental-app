@@ -50,7 +50,10 @@ const setAuthToken = (token: string) => {
 
 const clearAuthToken = () => {
   localStorage.removeItem('authToken')
-  apiClient.interceptors.request.clear()
+  if (authInterceptorId !== null) {
+    apiClient.interceptors.request.eject(authInterceptorId)
+    authInterceptorId = null
+  }
 }
 
 const storedToken = localStorage.getItem('authToken')
