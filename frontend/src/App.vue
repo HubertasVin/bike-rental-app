@@ -30,7 +30,10 @@
         ]
 
         if (isAuthenticated.value) {
-            links.push({ name: 'User', path: '/user' })
+            links.push(
+                { name: 'Auth Test', path: '/auth-test' },
+                { name: 'User', path: '/user' }
+            )
         } else {
             links.push(
                 { name: 'Login', path: '/login' },

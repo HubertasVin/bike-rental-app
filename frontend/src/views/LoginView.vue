@@ -31,15 +31,19 @@
         try {
             isSubmitting.value = true
 
-            // This would typically call your backend API
-            // Example: await api.post('/api/auth/login', { email: email.value, password: password.value })
+            // Call the backend API for login
+            const response = await api.login({
+                email: email.value,
+                password: password.value
+            })
 
-            // For demo purposes, simulating API call with timeout
-            await new Promise(resolve => setTimeout(resolve, 1000))
+            console.log('Login successful:', response.data)
 
-            console.log('Login attempted with:', { email: email.value, password: password.value })
+            // Store authentication token
+            if (response.data.token) {
+                localStorage.setItem('auth_token', response.data.token)
+            }
 
-            // Store authentication token (from real API response)
             localStorage.setItem('user_authenticated', 'true')
             localStorage.setItem('user_email', email.value)
 
@@ -47,7 +51,7 @@
             router.push('/map')
         } catch (error: any) {
             console.error('Login error:', error)
-            errorMessage.value = error.response?.data?.message || 'An error occurred during login'
+            errorMessage.value = error.response?.data || 'Invalid credentials'
         } finally {
             isSubmitting.value = false
         }

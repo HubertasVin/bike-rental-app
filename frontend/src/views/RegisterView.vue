@@ -4,6 +4,7 @@
     import { api } from '@/services/api-service'
 
     // Form data
+    const name = ref('')
     const email = ref('')
     const password = ref('')
     const confirmPassword = ref('')
@@ -17,7 +18,7 @@
         errorMessage.value = ''
 
         // Form validation
-        if (!email.value || !password.value || !confirmPassword.value) {
+        if (!name.value || !email.value || !password.value || !confirmPassword.value) {
             errorMessage.value = 'Please fill in all fields'
             return
         }
@@ -44,21 +45,20 @@
         try {
             isSubmitting.value = true
 
-            // This would typically call your backend API
-            // Example: await api.post('/api/auth/register', {
-            //   email: email.value,
-            //   password: password.value
-            // })
-
-            // For demo purposes, simulating API call with timeout
-            await new Promise(resolve => setTimeout(resolve, 1000))
-
-            console.log('Registration attempted with:', {
+            // Call the backend API for registration
+            const response = await api.register({
+                name: name.value,
                 email: email.value,
-                password: '********' // Don't log actual password
+                password: password.value
             })
 
-            // Store authentication token (from real API response)
+            console.log('Registration successful:', response.data)
+
+            // Store authentication token (from API response if available)
+            if (response.data.token) {
+                localStorage.setItem('auth_token', response.data.token)
+            }
+
             localStorage.setItem('user_authenticated', 'true')
             localStorage.setItem('user_email', email.value)
 
@@ -66,7 +66,7 @@
             router.push('/map')
         } catch (error: any) {
             console.error('Registration error:', error)
-            errorMessage.value = error.response?.data?.message || 'An error occurred during registration'
+            errorMessage.value = error.response?.data || 'An error occurred during registration'
         } finally {
             isSubmitting.value = false
         }
@@ -83,6 +83,13 @@
             <h1>REGISTER</h1>
 
             <form @submit.prevent="handleSubmit">
+                <div class="form-group">
+                    <input type="text"
+                           v-model="name"
+                           placeholder="Your Name"
+                           required />
+                </div>
+
                 <div class="form-group">
                     <input type="email"
                            v-model="email"

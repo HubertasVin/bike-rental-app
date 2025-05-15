@@ -72,11 +72,11 @@ const getWeatherForecast = () => {
 
 // Authentication endpoints
 const login = (credentials: { email: string; password: string }) => {
-    return apiClient.post('/api/auth/login', credentials)
+    return apiClient.post('/api/user/login', credentials)
 }
 
-const register = (userData: { email: string; password: string }) => {
-    return apiClient.post('/api/auth/register', userData)
+const register = (userData: { name: string; email: string; password: string }) => {
+    return apiClient.post('/api/user/register', userData)
 }
 
 const logout = () => {
