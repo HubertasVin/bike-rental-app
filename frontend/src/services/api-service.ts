@@ -35,10 +35,6 @@ apiClient.interceptors.response.use(
             localStorage.removeItem('auth_token')
             localStorage.removeItem('user_authenticated')
             localStorage.removeItem('user_email')
-            // Redirect to login page if using in a browser environment
-            if (typeof window !== 'undefined') {
-                window.location.href = '/login'
-            }
         }
         return Promise.reject(error)
     }

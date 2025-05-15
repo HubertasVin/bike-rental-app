@@ -21,7 +21,6 @@
             return
         }
 
-        // Basic email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
         if (!emailRegex.test(email.value)) {
             errorMessage.value = 'Please enter a valid email address'
@@ -31,7 +30,6 @@
         try {
             isSubmitting.value = true
 
-            // Call the backend API for login
             const response = await api.login({
                 email: email.value,
                 password: password.value
@@ -39,7 +37,6 @@
 
             console.log('Login successful:', response.data)
 
-            // Store authentication token
             if (response.data.token) {
                 localStorage.setItem('auth_token', response.data.token)
             }
@@ -47,7 +44,6 @@
             localStorage.setItem('user_authenticated', 'true')
             localStorage.setItem('user_email', email.value)
 
-            // Redirect to main app after successful login
             router.push('/map')
         } catch (error: any) {
             console.error('Login error:', error)
@@ -72,6 +68,7 @@
         <div class="auth-form">
             <h1>LOGIN</h1>
 
+            <!-- Event modifier to prevent default submission, plus explicit event in handler -->
             <form @submit.prevent="handleSubmit">
                 <div class="form-group">
                     <input type="email"
