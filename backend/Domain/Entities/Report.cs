@@ -2,6 +2,22 @@ namespace BikeRentalApp.Domain.Entities;
 
 public class Report
 {
+    protected Report() { }
+
+    public Report(
+        Guid id,
+        Guid bikeId,
+        Guid? userId,
+        string type,
+        string description)
+    {
+        Id = id;
+        BikeId = bikeId;
+        UserId = userId;
+        Type = type;
+        Description = description;
+    }
+
     public Guid Id { get; init; }
 
     public Guid BikeId { get; private set; }
