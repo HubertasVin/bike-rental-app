@@ -2,6 +2,17 @@ namespace BikeRentalApp.Domain.Entities;
 
 public class Rental
 {
+    protected Rental() { }
+
+    public Rental(Guid id, Guid userId, Guid bikeId, Guid startZoneId, DateTime startTime)
+    {
+        Id = id;
+        UserId = userId;
+        BikeId = bikeId;
+        StartZoneId = startZoneId;
+        StartTime = startTime;
+    }
+
     public Guid Id { get; init; }
 
     public Guid BikeId { get; private set; }
@@ -20,4 +31,10 @@ public class Rental
     public Zone? EndZone { get; private set; }
 
     public Payment? Payment { get; private set; }
+
+    public void End(Guid endZoneId)
+    {
+        EndTime = DateTime.UtcNow;
+        EndZoneId = endZoneId;
+    }
 }
