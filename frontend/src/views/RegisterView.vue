@@ -55,13 +55,21 @@ const handleSubmit = async () => {
 
     console.log('Registration successful:', response.data)
 
-    // Store authentication token (from API response if available)
-    if (response.data.token) {
-      authService.setToken(response.data.token)
-    }
+    // Log in after registration (using await to ensure sequence)
+    const loginResponse = await api.login({
+      email: email.value,
+      password: password.value,
+    })
 
-    // Redirect to main app after successful registration
-    router.push('/map')
+    if (loginResponse.data.token) {
+      authService.setToken(loginResponse.data.token)
+
+      console.log('Login successful, redirecting to map...')
+      await router.push('/map')
+    } else {
+      console.error('Login response did not contain a token')
+      errorMessage.value = 'Auto-login failed after registration'
+    }
   } catch (error: any) {
     console.error('Registration error:', error)
     errorMessage.value = error.response?.data || 'An error occurred during registration'
