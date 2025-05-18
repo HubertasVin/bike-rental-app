@@ -77,9 +77,9 @@ public class ReservationService : IReservationService
         return reservation != null ? MapToDto(reservation) : null;
     }
 
-    public async Task<IEnumerable<ReservationDTO>> GetUserReservationsAsync(Guid userId)
+    public async Task<IEnumerable<ReservationDTO>> GetAllReservationsAsync()
     {
-        var reservations = await _reservationRepository.GetUserReservationsAsync(userId);
+        var reservations = await _reservationRepository.GetAllAsync();
         return reservations.Select(MapToDto);
     }
 
@@ -116,6 +116,11 @@ public class ReservationService : IReservationService
         }
 
         return true;
+    }
+
+    public async Task<bool> DeleteReservationAsync(Guid id)
+    {
+        return await _reservationRepository.DeleteAsync(id);
     }
 
     public async Task<bool> IsReservationFreeAsync(Guid reservationId)

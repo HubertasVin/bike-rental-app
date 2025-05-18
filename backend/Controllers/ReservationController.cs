@@ -97,15 +97,14 @@ public class ReservationController : ControllerBase
     }
 
     /// <summary>
-    /// Gets all reservations for the current user
+    /// Gets all reservations
     /// </summary>
     /// <response code="200">List of user's reservations</response>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<ReservationDTO>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll()
     {
-        var userId = GetCurrentUserId();
-        var reservations = await _reservationService.GetUserReservationsAsync(userId);
+        var reservations = await _reservationService.GetAllReservationsAsync();
         return Ok(reservations);
     }
 
@@ -115,7 +114,7 @@ public class ReservationController : ControllerBase
     /// <param name="id">Reservation ID</param>
     /// <response code="200">Cancellation successful</response>
     /// <response code="404">If reservation not found</response>
-    [HttpDelete("{id:guid}")]
+    [HttpPost("{id:guid}/cancel")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -130,6 +129,26 @@ public class ReservationController : ControllerBase
         }
 
         return Ok();
+    }
+
+    /// <summary>
+    /// Deletes a reservation
+    /// </summary>
+    /// <param name="id">Reservation ID</param>
+    /// <response code="204">No content</response>
+    /// <response code="404">If reservation not found</response>
+    [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var result = await _reservationService.DeleteReservationAsync(id);
+        if (!result)
+        {
+            return NotFound();
+        }
+
+        return NoContent();
     }
 
     /// <summary>

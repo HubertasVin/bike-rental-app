@@ -56,15 +56,6 @@ public class ReservationRepository : Repository<Reservation>, IReservationReposi
         return true;
     }
 
-    public async Task<IEnumerable<Reservation>> GetUserReservationsAsync(Guid userId)
-    {
-        return await GetAll()
-            .Include(r => r.Bike)
-            .Include(r => r.User)
-            .Where(r => r.UserId == userId)
-            .ToListAsync();
-    }
-
     public async Task<Reservation?> GetActiveReservationForUserAsync(Guid userId)
     {
         return await GetAll()

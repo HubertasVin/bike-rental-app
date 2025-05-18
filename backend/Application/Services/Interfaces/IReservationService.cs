@@ -9,9 +9,10 @@ public interface IReservationService
         CreateReservationDTO createReservationDto
     );
     Task<ReservationDTO?> GetReservationByIdAsync(Guid id);
-    Task<IEnumerable<ReservationDTO>> GetUserReservationsAsync(Guid userId);
+    Task<IEnumerable<ReservationDTO>> GetAllReservationsAsync();
     Task<ReservationDTO?> GetActiveReservationForUserAsync(Guid userId);
     Task<bool> CancelReservationAsync(Guid reservationId, Guid userId);
+    Task<bool> DeleteReservationAsync(Guid id);
     Task<bool> IsReservationFreeAsync(Guid reservationId);
     Task<decimal?> CalculateReservationCostAsync(Guid reservationId);
 }

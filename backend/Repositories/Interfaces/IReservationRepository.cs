@@ -9,7 +9,6 @@ public interface IReservationRepository
     Task<Reservation> CreateAsync(Reservation reservation);
     Task<Reservation?> UpdateAsync(Reservation reservation);
     Task<bool> DeleteAsync(Guid id);
-    Task<IEnumerable<Reservation>> GetUserReservationsAsync(Guid userId);
     Task<Reservation?> GetActiveReservationForUserAsync(Guid userId);
     Task<bool> HasActiveReservationForBikeAsync(Guid bikeId);
 }
