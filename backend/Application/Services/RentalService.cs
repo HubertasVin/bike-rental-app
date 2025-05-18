@@ -43,7 +43,14 @@ public class RentalService : IRentalService
         reservation.End();
         await _reservationRepository.UpdateAsync(reservation);
 
-        var rental = new Rental(Guid.NewGuid(), userId, bike.Id, bike.ZoneId, DateTime.UtcNow);
+        var rental = new Rental(
+            Guid.NewGuid(),
+            userId,
+            bike.Id,
+            bike.ZoneId,
+            DateTime.UtcNow,
+            reservationId
+        );
 
         var createdRental = await _rentalRepository.CreateAsync(rental);
 
@@ -263,7 +270,8 @@ public class RentalService : IRentalService
             EndZoneName = rental.EndZone?.Name,
             BikeStatus = bike.Status.ToString(),
             LockStatus = bike.LockStatus.ToString(),
-            Cost = cost
+            Cost = cost,
+            ReservationId = rental.ReservationId
         };
     }
 }

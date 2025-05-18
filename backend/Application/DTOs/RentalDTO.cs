@@ -18,4 +18,5 @@ public class RentalDTO
     public string BikeStatus { get; set; } = null!;
     public string LockStatus { get; set; } = null!;
     public decimal? Cost { get; set; }
+    public Guid ReservationId { get; set; }
 }
