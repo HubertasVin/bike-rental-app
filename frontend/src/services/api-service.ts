@@ -74,12 +74,6 @@ const register = (userData: { name: string; email: string; password: string }) =
   return apiClient.post('/api/user/register', userData)
 }
 
-const logout = () => {
-  authService.clearToken()
-  // Return a resolved promise to maintain function signature
-  return Promise.resolve({ status: 200, data: { success: true } })
-}
-
 // Get zones endpoint
 const getZones = () => {
   return apiClient.get('/api/zone')
@@ -101,5 +95,4 @@ export const api = {
   // Auth endpoints
   login,
   register,
-  logout,
 }
