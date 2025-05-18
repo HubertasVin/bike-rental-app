@@ -223,4 +223,31 @@ public class RentalController : ControllerBase
 
         return Ok(cost);
     }
+
+    /// <summary>
+    /// Gets the duration of a rental
+    /// </summary>
+    /// <param name="id">Rental ID</param>
+    /// <response code="200">Duration of rental in minutes</response>
+    /// <response code="404">If rental not found</response>
+    [HttpGet("{id:guid}/duration")]
+    [ProducesResponseType(typeof(TimeSpan), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetDuration(Guid id)
+    {
+        var rental = await _rentalService.GetRentalByIdAsync(id);
+
+        if (rental == null)
+        {
+            return NotFound();
+        }
+
+        var userId = GetCurrentUserId();
+        if (rental.UserId != userId)
+        {
+            return Forbid();
+        }
+
+        return Ok(rental.RentalDuration);
+    }
 }

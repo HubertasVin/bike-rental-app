@@ -185,4 +185,30 @@ public class ReservationController : ControllerBase
 
         return Ok(cost);
     }
+
+    /// <summary>
+    /// Gets the duration of a reservation
+    /// </summary>
+    /// <param name="id">Reservation ID</param>
+    /// <response code="200">Duration of reservation in minutes</response>
+    /// <response code="404">If reservation not found</response>
+    [HttpGet("{id:guid}/duration")]
+    [ProducesResponseType(typeof(TimeSpan), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetDuration(Guid id)
+    {
+        var reservation = await _reservationService.GetReservationByIdAsync(id);
+        if (reservation == null)
+        {
+            return NotFound();
+        }
+
+        var userId = GetCurrentUserId();
+        if (reservation.UserId != userId)
+        {
+            return Forbid();
+        }
+
+        return Ok(reservation.ReservationDuration);
+    }
 }

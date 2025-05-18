@@ -4,6 +4,7 @@ GET {{BikeRentalApp_HostAddress}}/weatherforecast/
 Accept: application/json
 
 @token = 
+
 @reportId = f1e3fd3f-7848-452a-96d1-c8cce6422b61
 @zoneId = 9630c12e-5e17-4a66-b5c5-72df996302ce
 @bikeId = d4905f6d-f4a2-460d-9250-c6903e091405
@@ -185,6 +186,10 @@ GET {{BikeRentalApp_HostAddress}}/api/reservation/{{reservationId}}/cost
 Accept: application/json
 Authorization: Bearer {{token}}
 
+### Get duration of reservation
+GET {{BikeRentalApp_HostAddress}}/api/reservation/{{reservationId}}/duration
+Accept: application/json
+Authorization: Bearer {{token}}
 ###############################################################################################
 ### Create a rental from an existing reservation
 POST {{BikeRentalApp_HostAddress}}/api/rental/reservation/{{reservationId}}
@@ -228,5 +233,10 @@ Authorization: Bearer {{token}}
 
 ### Calculate the current cost of an active rental
 GET {{BikeRentalApp_HostAddress}}/api/rental/{{rentalId}}/cost
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Get duration of rental
+GET {{BikeRentalApp_HostAddress}}/api/rental/{{rentalId}}/duration
 Accept: application/json
 Authorization: Bearer {{token}}
