@@ -1,55 +1,57 @@
-<script setup lang="ts">import { ref, onMounted } from 'vue';
-import { api } from '@/services/api-service';
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { api } from '@/services/api-service'
 
 const authStatus = ref({
     token: null as string | null,
     isPresent: false,
-    isValid: false
-});
+    isValid: false,
+})
 
 const authHeaderTest = ref({
     loading: false,
     success: false,
     error: null as string | null,
-    response: null as any
-});
+    response: null as any,
+})
 
 // Check if auth token exists
 onMounted(() => {
-    const token = localStorage.getItem('auth_token');
-    authStatus.value.token = token;
-    authStatus.value.isPresent = !!token;
-});
+    const token = localStorage.getItem('auth_token')
+    authStatus.value.token = token
+    authStatus.value.isPresent = !!token
+})
 
 // Test API call with auth header
 const testAuthenticatedRequest = async () => {
-    authHeaderTest.value.loading = true;
-    authHeaderTest.value.error = null;
+    authHeaderTest.value.loading = true
+    authHeaderTest.value.error = null
 
     try {
         // Try to get bikes - this endpoint requires authentication
         // This will automatically use the token from localStorage via the interceptor
-        const response = await api.fetch('/api/bike');
+        const response = await api.fetch('/api/bike')
 
-        authHeaderTest.value.success = true;
-        authHeaderTest.value.response = response.data;
-        authStatus.value.isValid = true;
+        authHeaderTest.value.success = true
+        authHeaderTest.value.response = response.data
+        authStatus.value.isValid = true
     } catch (error: any) {
-        authHeaderTest.value.success = false;
-        authHeaderTest.value.error = error.response?.data || error.message;
-        authStatus.value.isValid = false;
+        authHeaderTest.value.success = false
+        authHeaderTest.value.error = error.response?.data || error.message
+        authStatus.value.isValid = false
     } finally {
-        authHeaderTest.value.loading = false;
+        authHeaderTest.value.loading = false
     }
-};
+}
 
 // Check token from local storage
 const displayToken = (token: string | null): string => {
-    if (!token) return 'No token found';
-    if (token.length <= 15) return token;
+    if (!token) return 'No token found'
+    if (token.length <= 15) return token
     // Show the first and last few characters of the token
-    return `${token.substring(0, 6)}...${token.substring(token.length - 6)}`;
-};</script>
+    return `${token.substring(0, 6)}...${token.substring(token.length - 6)}`
+}
+</script>
 
 <template>
     <div class="auth-test-container">
@@ -84,9 +86,7 @@ const displayToken = (token: string | null): string => {
             <h2>Test Authenticated API Request</h2>
             <p>This will send a request to the API with the Authorization header</p>
 
-            <button @click="testAuthenticatedRequest"
-                    :disabled="authHeaderTest.loading"
-                    class="test-button">
+            <button @click="testAuthenticatedRequest" :disabled="authHeaderTest.loading" class="test-button">
                 {{ authHeaderTest.loading ? 'Testing...' : 'Test Authentication' }}
             </button>
 
@@ -114,95 +114,103 @@ const displayToken = (token: string | null): string => {
 </template>
 
 <style scoped>
-    .auth-test-container {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 20px;
-    }
+.auth-test-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
 
-    .test-section {
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        padding: 20px;
-        margin-bottom: 20px;
-    }
+.test-section {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+}
 
-    .status-card {
-        background-color: #f5f5f5;
-        border-radius: 4px;
-        padding: 15px;
-        margin: 15px 0;
-    }
+.status-card {
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    padding: 15px;
+    margin: 15px 0;
+}
 
-    .status-item {
-        margin-bottom: 10px;
-        display: flex;
-        justify-content: space-between;
-    }
+.status-item {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+}
 
-    .status-success {
-        color: #4caf50;
-        font-weight: bold;
-    }
+.status-success {
+    color: #4caf50;
+    font-weight: bold;
+}
 
-    .status-error {
-        color: #f44336;
-        font-weight: bold;
-    }
+.status-error {
+    color: #f44336;
+    font-weight: bold;
+}
 
-    .test-button {
-        background-color: #2196f3;
-        color: white;
-        border: none;
-        padding: 10px 15px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 16px;
-        margin: 15px 0;
-    }
+.test-button {
+    background-color: #2196f3;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin: 15px 0;
+}
 
-        .test-button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
+.test-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
 
-    .error-message {
-        margin-top: 15px;
-        padding: 15px;
-        background-color: #ffebee;
-        border-left: 4px solid #f44336;
-        border-radius: 4px;
-    }
+.error-message {
+    margin-top: 15px;
+    padding: 15px;
+    background-color: #ffebee;
+    border-left: 4px solid #f44336;
+    border-radius: 4px;
+}
 
-    .success-message {
-        margin-top: 15px;
-        padding: 15px;
-        background-color: #e8f5e9;
-        border-left: 4px solid #4caf50;
-        border-radius: 4px;
-    }
+.success-message {
+    margin-top: 15px;
+    padding: 15px;
+    background-color: #e8f5e9;
+    border-left: 4px solid #4caf50;
+    border-radius: 4px;
+}
 
-    pre {
-        background-color: #f5f5f5;
-        padding: 10px;
-        border-radius: 4px;
-        overflow-x: auto;
-        max-height: 300px;
-    }
+pre {
+    background-color: #f5f5f5;
+    padding: 10px;
+    border-radius: 4px;
+    overflow-x: auto;
+    max-height: 300px;
+}
 
-    .help-tips {
-        margin-top: 15px;
-        padding: 10px;
-        background-color: #fff8e1;
-        border-radius: 4px;
-    }
+.help-tips {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #fff8e1;
+    border-radius: 4px;
+}
 
-    code {
-        font-family: monospace;
-        background-color: #e0e0e0;
-        padding: 2px 5px;
-        border-radius: 3px;
-        word-break: break-all;
-    }
+code {
+    font-family: monospace;
+    background-color: #e0e0e0;
+    padding: 2px 5px;
+    border-radius: 3px;
+    word-break: break-all;
+}
+
+strong,
+span,
+p,
+code,
+pre {
+    color: #000;
+}
 </style>
