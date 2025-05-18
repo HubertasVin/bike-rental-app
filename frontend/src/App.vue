@@ -1,15 +1,54 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
+import { ref, onMounted, computed, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { authService } from '@/services/auth-service'
+
+const isAuthenticated = ref(false)
+const router = useRouter()
+const route = useRoute()
+
+// Check authentication status on component mount and when route changes
+const checkAuth = () => {
+  isAuthenticated.value = authService.isTokenValid()
+}
+
+onMounted(() => {
+  checkAuth()
+})
+
+// Watch for route changes to update auth status
+watch(
+  () => route.path,
+  () => {
+    checkAuth()
+  },
+)
+
+// Navigation links based on authentication status
+const navLinks = computed(() => {
+  const links = [
+    { name: 'About', path: '/about' },
+    { name: 'Map', path: '/map' },
+    { name: 'API Test', path: '/api-test' },
+  ]
+
+  if (isAuthenticated.value) {
+    links.push({ name: 'Auth Test', path: '/auth-test' }, { name: 'User', path: '/user' })
+  } else {
+    links.push({ name: 'Login', path: '/login' }, { name: 'Register', path: '/register' })
+  }
+
+  return links
+})
 </script>
 
 <template>
   <div class="app-container">
     <nav class="navigation">
-      <RouterLink to="/about">About</RouterLink>
-      <RouterLink to="/login">Login</RouterLink>
-      <RouterLink to="/register">Register</RouterLink>
-      <RouterLink to="/map">Map</RouterLink>
-      <RouterLink to="/api-test">API Test</RouterLink>
+      <RouterLink v-for="link in navLinks" :key="link.path" :to="link.path">
+        {{ link.name }}
+      </RouterLink>
     </nav>
 
     <main class="content">

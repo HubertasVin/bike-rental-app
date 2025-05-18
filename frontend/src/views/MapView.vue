@@ -8,13 +8,10 @@
       <button @click="addZone">Add Custom Zone</button>
       <button @click="clearOverlays">Clear Overlays</button>
     </div>
-    <div>
-      <input
-        type="text"
-        v-model="authToken"
-        placeholder="Enter AUTH token"
-        @keyup.enter="setAuthToken"
-      />
+    <div class="auth-status">
+      <span v-if="isLoggedIn">Logged in as: {{ userEmail }}</span>
+      <span v-else>Not logged in. Please <router-link to="/login">login</router-link> to access all
+        features.</span>
     </div>
   </div>
 </template>
@@ -23,6 +20,7 @@
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { api } from '@/services/api-service'
+import { authService } from '@/services/auth-service'
 
 export default {
   name: 'MapView',
@@ -40,22 +38,29 @@ export default {
         fillOpacity: 0.2,
         fillColor: '#3388ff',
       },
-      authToken: localStorage.getItem('authToken') || '',
       zones: [],
       isLoading: false,
       error: null,
+      isLoggedIn: false,
+      userEmail: null,
     }
   },
   mounted() {
     this.initMap()
     this.createBikeIcon()
+    this.checkAuthStatus()
 
-    if (this.authToken) {
-      console.log('Auth token loaded from storage')
+    if (this.isLoggedIn) {
+      console.log('User is authenticated')
       this.fetchAndDisplayZones()
     }
   },
   methods: {
+    checkAuthStatus() {
+      this.isLoggedIn = authService.isTokenValid()
+      this.userEmail = authService.getUserEmail()
+    },
+
     initMap() {
       this.map = L.map('map').setView(this.mapCenter, 13)
 
@@ -229,20 +234,13 @@ export default {
       this.overlays = []
     },
 
-    setAuthToken() {
-      if (this.authToken) {
-        api.setAuthToken(this.authToken)
-        console.log('Auth token saved:', this.authToken)
-        // Fetch zones after setting token
-        this.fetchAndDisplayZones()
-      }
-    },
-
     async fetchAndDisplayZones() {
       try {
+        console.log('Fetching zones with auth token')
         this.isLoading = true
         this.error = null
 
+        // Use the authService token that's already set in the API service
         const response = await api.getZones()
         this.zones = response.data
 
@@ -381,6 +379,14 @@ ID: ${bike.id}`)
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
+}
+
+.auth-status {
+  margin: 10px 0;
+  padding: 10px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  color: #000;
 }
 
 button {

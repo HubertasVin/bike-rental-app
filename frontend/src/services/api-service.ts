@@ -1,5 +1,6 @@
 import axios from 'axios'
 import type { AxiosInstance } from 'axios'
+import { authService } from './auth-service'
 
 // Create axios instance with hardcoded base URL
 const apiClient: AxiosInstance = axios.create({
@@ -9,6 +10,34 @@ const apiClient: AxiosInstance = axios.create({
     'Content-Type': 'application/json',
   },
 })
+
+// Add request interceptor for auth headers
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = authService.getToken()
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`
+    }
+    return config
+  },
+  (error) => {
+    return Promise.reject(error)
+  },
+)
+
+// Add response interceptor for handling auth errors
+apiClient.interceptors.response.use(
+  (response) => {
+    return response
+  },
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      // Handle unauthorized access, just clear the token
+      authService.clearToken()
+    }
+    return Promise.reject(error)
+  },
+)
 
 // General API methods
 const fetch = (endpoint: string) => {
@@ -36,35 +65,19 @@ const getWeatherForecast = () => {
   return apiClient.get('/weatherforecast')
 }
 
+// Authentication endpoints
+const login = (credentials: { email: string; password: string }) => {
+  return apiClient.post('/api/user/login', credentials)
+}
+
+const register = (userData: { name: string; email: string; password: string }) => {
+  return apiClient.post('/api/user/register', userData)
+}
+
+// Get zones endpoint
 const getZones = () => {
   return apiClient.get('/api/zone')
 }
-
-const setAuthToken = (token: string) => {
-  localStorage.setItem('authToken', token)
-  apiClient.interceptors.request.use((config) => {
-    config.headers.Authorization = `Bearer ${token}`
-    return config
-  })
-}
-
-const clearAuthToken = () => {
-  localStorage.removeItem('authToken')
-  if (authInterceptorId !== null) {
-    apiClient.interceptors.request.eject(authInterceptorId)
-    authInterceptorId = null
-  }
-}
-
-const storedToken = localStorage.getItem('authToken')
-if (storedToken) {
-  setAuthToken(storedToken)
-}
-
-// Example of how to add more specific API methods
-// const login = (credentials: { username: string, password: string }) => {
-//   return apiClient.post('/api/auth/login', credentials)
-// }
 
 export const api = {
   // General methods
@@ -79,7 +92,7 @@ export const api = {
   getWeatherForecast,
   getZones,
 
-  // Auth methods
-  setAuthToken,
-  clearAuthToken,
+  // Auth endpoints
+  login,
+  register,
 }
