@@ -60,6 +60,18 @@ const getUserName = (): string | null => {
   }
 }
 
+const getUserId = (): string | null => {
+  const token = getToken()
+  if (!token) return null
+
+  try {
+    const decoded = jwtDecode<JwtPayload>(token)
+    return decoded.sub || null
+  } catch (error) {
+    return null
+  }
+}
+
 export const authService = {
   setToken,
   getToken,
@@ -67,4 +79,5 @@ export const authService = {
   isTokenValid,
   getUserEmail,
   getUserName,
+  getUserId
 }
