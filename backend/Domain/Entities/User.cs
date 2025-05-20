@@ -5,9 +5,9 @@ public class User
 
      protected User() {}
 
-    public User(string name, string email, string plainPassword)
+    public User(Guid id, string name, string email, string plainPassword)
     {
-        Id = Guid.NewGuid();
+        Id = id;
         Name = name;
         Email = email;
         PasswordHash = BCrypt.Net.BCrypt.HashPassword(plainPassword);

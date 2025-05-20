@@ -1,6 +1,6 @@
 namespace BikeRentalApp.Application.DTOs;
 
-public class RegisterDTO
+public class UpdateUserDTO
 {
     public required string Name {get; set;}
 
