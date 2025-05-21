@@ -42,15 +42,23 @@ public class UserService : IUserService
             return null;
         }
 
-        var updatedUser = new User(
-            existingUser.Id,
-            updateUserDto.Name,
-            updateUserDto.Email,
-            updateUserDto.Password
-        );
+        existingUser = await _userRepository.GetByIdAsync(id);
+        if (existingUser == null)
+        {
+            return null;
+        }
 
-        var result = await _userRepository.UpdateAsync(updatedUser);
+        existingUser.UpdateName(updateUserDto.Name);
+        existingUser.UpdateEmail(updateUserDto.Email);
+
+        if (!string.IsNullOrWhiteSpace(updateUserDto.Password))
+        {
+            existingUser.UpdatePassword(updateUserDto.Password);
+        }
+
+        var result = await _userRepository.UpdateAsync(existingUser);
         return result != null ? MapToDto(result) : null;
+
     }
     
     public async Task<AuthDTO> LoginAsync(LoginDTO dto)

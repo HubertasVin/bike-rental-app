@@ -54,18 +54,17 @@ const updateProfile = async () => {
     updateMessage.value = ''
 
     const payload: any = {
-      name: newName.value,
-      email: newEmail.value,
-    }
-
-    if (newPassword.value) {
-      payload.password = newPassword.value
+      name: newName.value.trim() || name.value,
+      email: newEmail.value.trim() || email.value,
+      password: newPassword.value.trim() || undefined
     }
 
     await api.put(`/api/User/${userId.value}`, payload)
 
-    name.value = newName.value
-    email.value = newEmail.value
+    name.value = payload.name
+    email.value = payload.email
+    newName.value = name.value
+    newEmail.value = email.value
     newPassword.value = ''
     updateMessage.value = 'Profile updated successfully!'
     isEditing.value = false
@@ -83,6 +82,7 @@ const updateProfile = async () => {
     isLoading.value = false
   }
 }
+
 
 const cancelEdit = () => {
   newName.value = name.value
