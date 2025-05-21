@@ -1,55 +1,77 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using BikeRentalApp.Application.DTOs;
+using BikeRentalApp.Application.Services.Interfaces;
 using BikeRentalApp.Data;
 using BikeRentalApp.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 
 [ApiController]
 [Route("api/[controller]")]
 public class UserController : ControllerBase
 {
     private readonly ApplicationDbContext _db;
-    private readonly IConfiguration _config;
+
+    private readonly IUserService _userService;
     private readonly JwtService _jwtService;
 
-    public UserController(ApplicationDbContext db, IConfiguration config, JwtService jwtService)
+    public UserController(ApplicationDbContext db, JwtService jwtService, IUserService userService)
     {
         _db = db;
-        _config = config;
         _jwtService = jwtService;
+        _userService = userService;
     }
 
     [AllowAnonymous]
     [HttpPost("register")]
-    public async Task<IActionResult> Register(RegisterDTO request)
+    public async Task<IActionResult> Register(UserDTO request)
     {
-        if (_db.Users.Any(u => u.Email == request.Email))
-            return BadRequest("Email already exists");
-
-        var user = new User(request.Name, request.Email, request.Password);
-
-
-        _db.Users.Add(user);
-        await _db.SaveChangesAsync();
-
-        return Ok(user);
+        try
+        {
+            var createdUser = await _userService.CreateUserAsync(request);
+            return Ok(createdUser);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
-
 
     [AllowAnonymous]
     [HttpPost("login")]
-    public IActionResult Login(LoginDTO request)
+    public async Task<IActionResult> Login(LoginDTO request)
     {
-        var user = _db.Users.SingleOrDefault(u => u.Email == request.Email);
-        if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
-            return Unauthorized("Invalid credentials");
+        try
+        {
+            var auth = await _userService.LoginAsync(request);
+            return Ok(auth);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(ex.Message);
+        }
+    }
 
-        var token = _jwtService.GenerateJwtToken(user);
-        return Ok(new AuthDTO(token));
+
+    [HttpPut("{id:guid}")]
+    [ProducesResponseType(typeof(UserDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Update(Guid id, UpdateUserDTO request)
+    {
+        try
+        {
+            var updatedUser = await _userService.UpdateUserAsync(id, request);
+            if (updatedUser == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(updatedUser);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
 }
