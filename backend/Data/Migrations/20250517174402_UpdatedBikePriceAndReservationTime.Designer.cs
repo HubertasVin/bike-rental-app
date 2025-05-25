@@ -3,6 +3,7 @@ using System;
 using BikeRentalApp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BikeRentalApp.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250517174402_UpdatedBikePriceAndReservationTime")]
+    partial class UpdatedBikePriceAndReservationTime
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -83,10 +86,7 @@ namespace BikeRentalApp.Data.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid?>("RentalId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ReservationId")
+                    b.Property<Guid>("RentalId")
                         .HasColumnType("uuid");
 
                     b.Property<int>("Status")
@@ -102,8 +102,6 @@ namespace BikeRentalApp.Data.Migrations
 
                     b.HasIndex("RentalId")
                         .IsUnique();
-
-                    b.HasIndex("ReservationId");
 
                     b.HasIndex("UserId");
 
@@ -125,9 +123,6 @@ namespace BikeRentalApp.Data.Migrations
                     b.Property<Guid?>("EndZoneId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("ReservationId")
-                        .HasColumnType("uuid");
-
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("timestamp with time zone");
 
@@ -142,8 +137,6 @@ namespace BikeRentalApp.Data.Migrations
                     b.HasIndex("BikeId");
 
                     b.HasIndex("EndZoneId");
-
-                    b.HasIndex("ReservationId");
 
                     b.HasIndex("StartZoneId");
 
@@ -291,11 +284,7 @@ namespace BikeRentalApp.Data.Migrations
                 {
                     b.HasOne("BikeRentalApp.Domain.Entities.Rental", "Rental")
                         .WithOne("Payment")
-                        .HasForeignKey("BikeRentalApp.Domain.Entities.Payment", "RentalId");
-
-                    b.HasOne("BikeRentalApp.Domain.Entities.Reservation", "Reservation")
-                        .WithMany()
-                        .HasForeignKey("ReservationId")
+                        .HasForeignKey("BikeRentalApp.Domain.Entities.Payment", "RentalId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -306,8 +295,6 @@ namespace BikeRentalApp.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Rental");
-
-                    b.Navigation("Reservation");
 
                     b.Navigation("User");
                 });
@@ -325,12 +312,6 @@ namespace BikeRentalApp.Data.Migrations
                         .HasForeignKey("EndZoneId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("BikeRentalApp.Domain.Entities.Reservation", "Reservation")
-                        .WithMany()
-                        .HasForeignKey("ReservationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("BikeRentalApp.Domain.Entities.Zone", "StartZone")
                         .WithMany()
                         .HasForeignKey("StartZoneId")
@@ -346,8 +327,6 @@ namespace BikeRentalApp.Data.Migrations
                     b.Navigation("Bike");
 
                     b.Navigation("EndZone");
-
-                    b.Navigation("Reservation");
 
                     b.Navigation("StartZone");
 

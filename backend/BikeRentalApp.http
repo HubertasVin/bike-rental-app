@@ -1,10 +1,18 @@
 @BikeRentalApp_HostAddress = http://localhost:5270
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0MTE4NGM5Mi0xZTc4LTQxZjItOTRmNy02NjExOThhNTk2ZTIiLCJlbWFpbCI6InRlc3RAZXhhbXBsZS5jb20iLCJuYW1lIjoiVGVzdCBVc2VyIiwiZXhwIjoxNzQ2OTcxODY5LCJpc3MiOiJodHRwczovL2xvY2FsaG9zdDo1MjcwIiwiYXVkIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NTI3MCJ9.1b5c5SVd-h8NkfQ3CkpUrwOJRCHzdQ6sEE80BTSHPEs
-@reportId = f1e3fd3f-7848-452a-96d1-c8cce6422b61
 
 GET {{BikeRentalApp_HostAddress}}/weatherforecast/
 Accept: application/json
 
+@token = 
+
+### Note: The @token variable will be dynamically set after the login step.
+@reportId = f1e3fd3f-7848-452a-96d1-c8cce6422b61
+@zoneId = 9630c12e-5e17-4a66-b5c5-72df996302ce
+@bikeId = d4905f6d-f4a2-460d-9250-c6903e091405
+@reservationId = af419a7c-de3f-49d6-bcda-20e95a082b2a
+@rentalId = 098a528e-8554-4370-9208-877734b842bf
+
+###############################################################################################
 ### Register user
 POST {{BikeRentalApp_HostAddress}}/api/user/register
 Content-Type: application/json
@@ -24,14 +32,25 @@ Content-Type: application/json
   "password": "yourpassword"
 }
 
+###############################################################################################
+### Create a Zone
+POST {{BikeRentalApp_HostAddress}}/api/zone
+Content-Type: application/json
+Authorization: Bearer {{token}}
 
+{
+  "name": "Naujamiestis",
+  "address": "Naugarduko g. 24"
+}
+
+###############################################################################################
 ### Get all bikes
 GET {{BikeRentalApp_HostAddress}}/api/bike
 Accept: application/json
 Authorization: Bearer {{token}}
 
 ### Get bike by ID
-GET {{BikeRentalApp_HostAddress}}/api/bike/e21afdd8-898d-40a0-9a66-e3e320277b31
+GET {{BikeRentalApp_HostAddress}}/api/bike/{{bikeId}}
 Accept: application/json
 Authorization: Bearer {{token}}
 
@@ -41,8 +60,7 @@ Accept: application/json
 Authorization: Bearer {{token}}
 
 ### Get bikes by zone
-GET {{BikeRentalApp_HostAddress}}/api/bike/zone/b5f3a4db-5f43-4422-b9d3-7c5c2924ab93
-Accept: application/json
+GET {{BikeRentalApp_HostAddress}}/api/bike/zone/{{zoneId}}
 Authorization: Bearer {{token}}
 
 ### Create a new bike
@@ -51,27 +69,29 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "rentPrice": 10.50,
+  "pricePerMinute": 0.50,
   "model": "Mountain Bike X3",
-  "zoneId": "b5f3a4db-5f43-4422-b9d3-7c5c2924ab93"
+  "zoneId": "{{zoneId}}"
 }
 
 ### Update a bike
-PUT {{BikeRentalApp_HostAddress}}/api/bike/e21afdd8-898d-40a0-9a66-e3e320277b31
+PUT {{BikeRentalApp_HostAddress}}/api/bike/{{bikeId}}
 Content-Type: application/json
 Authorization: Bearer {{token}}
+
 {
-  "rentPrice": 12.75,
+  "pricePerMinute": 1.75,
   "model": "Mountain Bike X3 Pro",
-  "status": "Rented",
+  "status": "Reserved",
   "lockStatus": "Locked",
-  "zoneId": "b5f3a4db-5f43-4422-b9d3-7c5c2924ab93"
+  "zoneId": "{{zoneId}}"
 }
 
 ### Delete a bike
-DELETE {{BikeRentalApp_HostAddress}}/api/bike/e21afdd8-898d-40a0-9a66-e3e320277b31
+DELETE {{BikeRentalApp_HostAddress}}/api/bike/{{bikeId}}
 Authorization: Bearer {{token}}
 
+###############################################################################################
 ### Get all reports
 GET {{BikeRentalApp_HostAddress}}/api/report
 Accept: application/json
@@ -119,5 +139,105 @@ Authorization: Bearer {{token}}
 
 ### Get reports by user ID
 GET {{BikeRentalApp_HostAddress}}/api/report/user/e0123456-7890-1234-5678-90abcdef1234
+Accept: application/json
+Authorization: Bearer {{token}}
+
+###############################################################################################
+### Create a new reservation
+POST {{BikeRentalApp_HostAddress}}/api/reservation
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "bikeId": "{{bikeId}}"
+}
+
+### Get a reservation by ID
+GET {{BikeRentalApp_HostAddress}}/api/reservation/{{reservationId}}
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Get current user's active reservation
+GET {{BikeRentalApp_HostAddress}}/api/reservation/active
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Get all reservations
+GET {{BikeRentalApp_HostAddress}}/api/reservation
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Cancel a reservation
+POST {{BikeRentalApp_HostAddress}}/api/reservation/{{reservationId}}/cancel
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Delete a reservation
+DELETE {{BikeRentalApp_HostAddress}}/api/reservation/{{reservationId}}
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Check if reservation is free (within 10-minute grace period)
+GET {{BikeRentalApp_HostAddress}}/api/reservation/{{reservationId}}/is-free
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Calculate the cost of a reservation
+GET {{BikeRentalApp_HostAddress}}/api/reservation/{{reservationId}}/cost
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Get duration of reservation
+GET {{BikeRentalApp_HostAddress}}/api/reservation/{{reservationId}}/duration
+Accept: application/json
+Authorization: Bearer {{token}}
+###############################################################################################
+### Create a rental from an existing reservation
+POST {{BikeRentalApp_HostAddress}}/api/rental/reservation/{{reservationId}}
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Get all rentals
+GET {{BikeRentalApp_HostAddress}}/api/rental
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Get a rental by ID
+GET {{BikeRentalApp_HostAddress}}/api/rental/{{rentalId}}
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Get current user's active rental
+GET {{BikeRentalApp_HostAddress}}/api/rental/active
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### End a rental (return the bike)
+POST {{BikeRentalApp_HostAddress}}/api/rental/{{rentalId}}/end?zoneId={{zoneId}}
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Delete a rental
+DELETE {{BikeRentalApp_HostAddress}}/api/rental/{{rentalId}}
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Lock the bike during an active rental
+POST {{BikeRentalApp_HostAddress}}/api/rental/{{rentalId}}/lock
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Unlock the bike during an active rental
+POST {{BikeRentalApp_HostAddress}}/api/rental/{{rentalId}}/unlock
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Calculate the current cost of an active rental
+GET {{BikeRentalApp_HostAddress}}/api/rental/{{rentalId}}/cost
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Get duration of rental
+GET {{BikeRentalApp_HostAddress}}/api/rental/{{rentalId}}/duration
 Accept: application/json
 Authorization: Bearer {{token}}

@@ -32,7 +32,7 @@ public class BikeService : IBikeService
     {
         var bike = new Bike(
             Guid.NewGuid(),
-            createBikeDto.RentPrice,
+            createBikeDto.PricePerMinute,
             createBikeDto.Model,
             BikeStatus.Available,
             LockStatus.Locked,
@@ -63,7 +63,7 @@ public class BikeService : IBikeService
 
         var updatedBike = new Bike(
             existingBike.Id,
-            updateBikeDto.RentPrice,
+            updateBikeDto.PricePerMinute,
             updateBikeDto.Model,
             bikeStatus,
             lockStatus,
@@ -104,7 +104,7 @@ public class BikeService : IBikeService
 
         var updated = new Bike(
             existing.Id,
-            existing.RentPrice,
+            existing.PricePerMinute,
             existing.Model,
             existing.Status,
             existing.LockStatus,
@@ -112,9 +112,7 @@ public class BikeService : IBikeService
         );
 
         var result = await _bikeRepository.UpdateAsync(updated);
-        return result != null
-            ? MapToDto(result)
-            : null;
+        return result != null ? MapToDto(result) : null;
     }
 
     public static BikeDTO MapToDto(Bike bike)
@@ -122,7 +120,7 @@ public class BikeService : IBikeService
         return new BikeDTO
         {
             Id = bike.Id,
-            RentPrice = bike.RentPrice,
+            PricePerMinute = bike.PricePerMinute,
             Model = bike.Model,
             Status = bike.Status.ToString(),
             LockStatus = bike.LockStatus.ToString(),
