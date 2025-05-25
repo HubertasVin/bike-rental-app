@@ -27,10 +27,9 @@ export default {
   data() {
     return {
       map: null,
-      mapCenter: [54.6775530439872, 25.27774382871562], // Default coordinates (Vilnius)
+      mapCenter: [54.6775530439872, 25.27774382871562], // Vilnius
       overlays: [],
       bikeIcon: null,
-      // Zone style options
       zoneStyle: {
         color: '#3388ff',
         weight: 2,
@@ -51,7 +50,6 @@ export default {
     this.checkAuthStatus()
 
     if (this.isLoggedIn) {
-      console.log('User is authenticated')
       this.fetchAndDisplayZones()
     }
   },
@@ -130,33 +128,26 @@ export default {
     },
 
     addZone() {
-      // Let user draw a polygon zone
       alert('Click on the map to start drawing a zone. Double-click to finish.')
 
       const points = []
       let polygon = null
       let tempLine = null
 
-      // Create a function to handle map clicks during zone creation
       const handleMapClick = (e) => {
         points.push([e.latlng.lat, e.latlng.lng])
 
-        // Display points being created
         if (points.length === 1) {
-          // First point
           tempLine = L.polyline(points, this.zoneStyle).addTo(this.map)
         } else {
-          // Update the temporary line
           tempLine.setLatLngs(points)
 
-          // Check for double click to end drawing
           if (e.originalEvent.detail === 2 && points.length >= 3) {
             finishZoneDrawing()
           }
         }
       }
 
-      // Function to finish drawing the zone
       const finishZoneDrawing = () => {
         this.map.off('click', handleMapClick)
 
@@ -165,10 +156,8 @@ export default {
         }
 
         if (points.length >= 3) {
-          // Create polygon and add to map
           polygon = L.polygon(points, this.zoneStyle).addTo(this.map)
 
-          // Add popup for zone configuration
           const center = polygon.getBounds().getCenter()
           const zonePopup = L.popup()
             .setLatLng(center)
@@ -190,9 +179,7 @@ export default {
             )
             .openOn(this.map)
 
-          // Add event listeners after popup is opened
           polygon.on('popupopen', () => {
-            // Color selection
             document.querySelectorAll('.color-option').forEach((option) => {
               option.addEventListener('click', (e) => {
                 const color = e.target.getAttribute('data-color')
@@ -203,7 +190,6 @@ export default {
               })
             })
 
-            // Save button
             const saveButton = document.querySelector('.save-zone-button')
             if (saveButton) {
               saveButton.addEventListener('click', () => {
@@ -222,12 +208,10 @@ export default {
         }
       }
 
-      // Add the click handler to the map
       this.map.on('click', handleMapClick)
     },
 
     clearOverlays() {
-      // Remove all overlays from the map
       this.overlays.forEach((overlay) => {
         this.map.removeLayer(overlay)
       })
@@ -236,15 +220,10 @@ export default {
 
     async fetchAndDisplayZones() {
       try {
-        console.log('Fetching zones with auth token')
         this.isLoading = true
         this.error = null
-
-        // Use the authService token that's already set in the API service
         const response = await api.getZones()
         this.zones = response.data
-
-        // Display zones on the map
         this.displayZones()
       } catch (error) {
         console.error('Error fetching zones:', error)
@@ -258,10 +237,9 @@ export default {
       if (!this.zones || !this.zones.length) return
 
       this.zones.forEach((zone) => {
-        // Create the rectangle for the zone using the coordinates
         const bounds = [
-          [zone.latitude1, zone.longitude1], // top-left corner
-          [zone.latitude2, zone.longitude2], // bottom-right corner
+          [zone.latitude1, zone.longitude1],
+          [zone.latitude2, zone.longitude2],
         ]
 
         const rectangle = L.rectangle(bounds, {
@@ -272,23 +250,21 @@ export default {
           fillColor: '#3388ff',
         }).addTo(this.map)
 
-        // Add zone name as tooltip
-        rectangle.bindTooltip(zone.name, {
+        const availableBikes = zone.bikes ? zone.bikes.filter(bike => bike.status === 'Available') : []
+
+        rectangle.bindTooltip(`${zone.name}<br>Available bikes: ${availableBikes.length}`, {
           permanent: true,
           direction: 'center',
           className: 'zone-label',
         })
 
-        // Store zone rectangle for later reference
-        this.overlays.push(rectangle)
+        rectangle.on('click', () => {
+          this.showZoneBikes(zone, availableBikes)
+        })
 
-        // Add bike markers if there are bikes in the zone
-        if (zone.bikes && zone.bikes.length > 0) {
-          this.displayBikesInZone(zone)
-        }
+        this.overlays.push(rectangle)
       })
 
-      // Adjust map view to fit all zones
       if (this.zones.length > 0) {
         const allBounds = []
         this.zones.forEach((zone) => {
@@ -302,51 +278,6 @@ export default {
       }
     },
 
-    displayBikesInZone(zone) {
-      if (!zone.bikes || !zone.bikes.length) return
-
-      zone.bikes.forEach((bike) => {
-        // Calculate a random position within the zone rectangle for each bike
-        const lat = zone.latitude1 + (zone.latitude2 - zone.latitude1) * Math.random()
-        const lng = zone.longitude1 + (zone.longitude2 - zone.longitude1) * Math.random()
-
-        const marker = L.marker([lat, lng], { icon: this.bikeIcon }).addTo(this.map)
-
-        const popupContent = L.DomUtil.create('div', 'custom-popup')
-        popupContent.innerHTML = `
-          <h3>Bike #${bike.id.substring(0, 8)}</h3>
-          <p>Model: ${bike.model || 'Standard'}</p>
-          <p>Status: ${bike.status || 'Available'}</p>
-          <p>Price: ${bike.rentPrice}€/min</p>
-          <button class="popup-button rent-button" data-bike-id="${bike.id}">Rent Bike</button>
-          <button class="popup-button info-button" data-bike-id="${bike.id}">More Info</button>
-        `
-
-        const popup = L.popup().setContent(popupContent)
-        marker.bindPopup(popup)
-
-        marker.on('popupopen', () => {
-          const rentButton = document.querySelector('.rent-button')
-          const infoButton = document.querySelector('.info-button')
-
-          if (rentButton) {
-            rentButton.addEventListener('click', () => {
-              this.rentBike(bike.id)
-              popup.close()
-            })
-          }
-
-          if (infoButton) {
-            infoButton.addEventListener('click', () => {
-              this.showBikeInfo(bike)
-            })
-          }
-        })
-
-        this.overlays.push(marker)
-      })
-    },
-
     rentBike(bikeId) {
       alert(`Starting rental process for bike: ${bikeId}`)
     },
@@ -357,6 +288,62 @@ Model: ${bike.model}
 Status: ${bike.status}
 Lock Status: ${bike.lockStatus}
 ID: ${bike.id}`)
+    },
+
+    showZoneBikes(zone, availableBikes) {
+      const center = L.latLngBounds([
+        [zone.latitude1, zone.longitude1],
+        [zone.latitude2, zone.longitude2]
+      ]).getCenter()
+
+      let bikeListHtml = ''
+      if (availableBikes.length === 0) {
+        bikeListHtml = '<p class="no-bikes">No bikes available in this zone</p>'
+      } else {
+        bikeListHtml = availableBikes.map(bike => `
+          <div class="bike-item" data-bike-id="${bike.id}">
+            <div class="bike-info">
+              <strong>${bike.model}</strong>
+              <span class="bike-price">${bike.rentPrice}€/min</span>
+            </div>
+            <button class="select-bike-btn" data-bike-id="${bike.id}">Select</button>
+          </div>
+        `).join('')
+      }
+
+      const popupContent = `
+        <div class="zone-bikes-popup">
+          <h3>${zone.name}</h3>
+          <p class="zone-address">${zone.address}</p>
+          <p class="bikes-count">Available bikes: ${availableBikes.length}</p>
+          <div class="bikes-list">
+            ${bikeListHtml}
+          </div>
+        </div>
+      `
+
+      const popup = L.popup({
+        maxWidth: 300,
+        className: 'zone-bikes-popup-container'
+      })
+        .setLatLng(center)
+        .setContent(popupContent)
+        .openOn(this.map)
+
+      setTimeout(() => {
+        document.querySelectorAll('.select-bike-btn').forEach(button => {
+          button.addEventListener('click', (e) => {
+            const bikeId = e.target.getAttribute('data-bike-id')
+            const selectedBike = availableBikes.find(bike => bike.id === bikeId)
+            this.selectBike(selectedBike, zone)
+            popup.close()
+          })
+        })
+      }, 100)
+    },
+
+    selectBike(bike, zone) {
+      // Reservation popup place
     },
   },
 }
@@ -481,5 +468,82 @@ button:hover {
   border-radius: 4px;
   padding: 5px;
   font-weight: bold;
+  text-align: center;
+}
+
+/* Zone bikes popup styling */
+:deep(.zone-bikes-popup-container .leaflet-popup-content-wrapper) {
+  border-radius: 8px;
+}
+
+:deep(.zone-bikes-popup) {
+  min-width: 250px;
+}
+
+:deep(.zone-bikes-popup h3) {
+  margin: 0 0 8px 0;
+  color: #333;
+  font-size: 18px;
+}
+
+:deep(.zone-address) {
+  margin: 0 0 8px 0;
+  color: #666;
+  font-size: 14px;
+}
+
+:deep(.bikes-count) {
+  margin: 0 0 12px 0;
+  font-weight: bold;
+  color: #2196f3;
+}
+
+:deep(.bikes-list) {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+:deep(.bike-item) {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  margin-bottom: 8px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+}
+
+:deep(.bike-info) {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+:deep(.bike-price) {
+  color: #4caf50;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+:deep(.select-bike-btn) {
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+:deep(.select-bike-btn:hover) {
+  background-color: #1976d2;
+}
+
+:deep(.no-bikes) {
+  color: #666;
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
 }
 </style>
