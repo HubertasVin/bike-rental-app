@@ -13,6 +13,77 @@
       <span v-else>Not logged in. Please <router-link to="/login">login</router-link> to access all
         features.</span>
     </div>
+
+    <!-- Zone Bikes Bottom Popup -->
+    <div v-if="showZonePopup" class="bottom-popup zone-popup-overlay" :class="{ 'full-screen': isZonePopupExpanded }"
+      @click="closeZonePopup">
+      <div class="bottom-popup-content" :class="{ 'expanded': isZonePopupExpanded }" @click.stop>
+        <div class="popup-header">
+          <div class="drag-handle" @click.stop="toggleZonePopupExpanded" @touchstart.stop="handleTouchStart"
+            @touchmove.stop="handleTouchMove" @touchend.stop="handleTouchEnd" @mousedown.stop="handleMouseDown">
+            <div class="drag-indicator"></div>
+          </div>
+          <h3>{{ selectedZone?.name }}</h3>
+          <button class="close-btn" @click="closeZonePopup">×</button>
+        </div>
+        <p class="zone-subtitle">{{ selectedZone?.address }}</p>
+        <p class="bikes-count">Available bikes: {{ availableBikes.length }}</p>
+
+        <div v-if="availableBikes.length === 0" class="no-bikes">
+          <div class="no-bikes-content">
+            <p>No bikes available in this zone</p>
+          </div>
+        </div>
+
+        <div v-else class="bikes-container">
+          <div v-for="bike in availableBikes" :key="bike.id" class="bike-card" @click="selectBike(bike)">
+            <div class="bike-card-content">
+              <h4 class="bike-name">{{ bike.model }}</h4>
+              <div class="bike-details">
+                <div class="bike-detail">
+                  <span>Price per minute:</span>
+                  <span class="price">{{ bike.pricePerMinute }}€</span>
+                </div>
+              </div>
+            </div>
+            <button class="select-bike-btn">
+              <span class="icon">▶</span>
+              Select bike
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reservation Bottom Popup -->
+    <div v-if="showReservationPopup" class="bottom-popup reservation-popup-overlay"
+      :class="{ 'full-screen': isReservationPopupExpanded }" @click="closeReservationPopup">
+      <div class="bottom-popup-content" :class="{ 'expanded': isReservationPopupExpanded }" @click.stop>
+        <div class="popup-header">
+          <div class="drag-handle" @click.stop="toggleReservationPopupExpanded" @touchstart.stop="handleTouchStart"
+            @touchmove.stop="handleTouchMove" @touchend.stop="handleTouchEnd" @mousedown.stop="handleMouseDown">
+            <div class="drag-indicator"></div>
+          </div>
+          <h3>Reserve a bike</h3>
+          <button class="close-btn" @click="closeReservationPopup">×</button>
+        </div>
+        <p class="bike-model">{{ selectedBike?.model }}</p>
+        <div class="reservation-details">
+          <div class="reservation-detail">
+            <span>Price per minute:</span>
+            <span>{{ selectedBike?.pricePerMinute }}€</span>
+          </div>
+          <div class="reservation-detail">
+            <span>Reservation time:</span>
+            <span>15 min.</span>
+          </div>
+        </div>
+        <button class="begin-reservation-btn" @click="beginBikeReservation">
+          <span class="icon">▶</span>
+          Begin reservation
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -27,7 +98,7 @@ export default {
   data() {
     return {
       map: null,
-      mapCenter: [54.6775530439872, 25.27774382871562], // Vilnius
+      mapCenter: [54.6775530439872, 25.27774382871562],
       overlays: [],
       bikeIcon: null,
       zoneStyle: {
@@ -42,6 +113,18 @@ export default {
       error: null,
       isLoggedIn: false,
       userEmail: null,
+      showZonePopup: false,
+      showReservationPopup: false,
+      selectedZone: null,
+      selectedBike: null,
+      availableBikes: [],
+      isZonePopupExpanded: false,
+      isReservationPopupExpanded: false,
+      isDragging: false,
+      dragStartY: 0,
+      dragCurrentY: 0,
+      dragThreshold: 100,
+      isMouseDragging: false,
     }
   },
   mounted() {
@@ -52,6 +135,15 @@ export default {
     if (this.isLoggedIn) {
       this.fetchAndDisplayZones()
     }
+
+    // Add global mouse event listeners
+    document.addEventListener('mousemove', this.handleGlobalMouseMove)
+    document.addEventListener('mouseup', this.handleGlobalMouseUp)
+  },
+  beforeUnmount() {
+    // Clean up global listeners
+    document.removeEventListener('mousemove', this.handleGlobalMouseMove)
+    document.removeEventListener('mouseup', this.handleGlobalMouseUp)
   },
   methods: {
     checkAuthStatus() {
@@ -291,59 +383,130 @@ ID: ${bike.id}`)
     },
 
     showZoneBikes(zone, availableBikes) {
-      const center = L.latLngBounds([
-        [zone.latitude1, zone.longitude1],
-        [zone.latitude2, zone.longitude2]
-      ]).getCenter()
-
-      let bikeListHtml = ''
-      if (availableBikes.length === 0) {
-        bikeListHtml = '<p class="no-bikes">No bikes available in this zone</p>'
-      } else {
-        bikeListHtml = availableBikes.map(bike => `
-          <div class="bike-item" data-bike-id="${bike.id}">
-            <div class="bike-info">
-              <strong>${bike.model}</strong>
-              <span class="bike-price">${bike.pricePerMinute}€/min</span>
-            </div>
-            <button class="select-bike-btn" data-bike-id="${bike.id}">Select</button>
-          </div>
-        `).join('')
-      }
-
-      const popupContent = `
-        <div class="zone-bikes-popup">
-          <h3>${zone.name}</h3>
-          <p class="zone-address">${zone.address}</p>
-          <p class="bikes-count">Available bikes: ${availableBikes.length}</p>
-          <div class="bikes-list">
-            ${bikeListHtml}
-          </div>
-        </div>
-      `
-
-      const popup = L.popup({
-        maxWidth: 300,
-        className: 'zone-bikes-popup-container'
-      })
-        .setLatLng(center)
-        .setContent(popupContent)
-        .openOn(this.map)
-
-      setTimeout(() => {
-        document.querySelectorAll('.select-bike-btn').forEach(button => {
-          button.addEventListener('click', (e) => {
-            const bikeId = e.target.getAttribute('data-bike-id')
-            const selectedBike = availableBikes.find(bike => bike.id === bikeId)
-            this.selectBike(selectedBike, zone)
-            popup.close()
-          })
-        })
-      }, 100)
+      this.selectedZone = zone
+      this.availableBikes = availableBikes
+      this.showZonePopup = true
+      this.isZonePopupExpanded = false
     },
 
-    selectBike(bike, zone) {
-      // Reservation popup place
+    closeZonePopup() {
+      this.showZonePopup = false
+      this.selectedZone = null
+      this.availableBikes = []
+      this.isZonePopupExpanded = false
+    },
+
+    selectBike(bike) {
+      this.selectedBike = bike
+      this.showZonePopup = false
+      this.showReservationPopup = true
+      this.isReservationPopupExpanded = false
+    },
+
+    closeReservationPopup() {
+      this.showReservationPopup = false
+      this.selectedBike = null
+      this.isReservationPopupExpanded = false
+    },
+
+    toggleZonePopupExpanded() {
+      this.isZonePopupExpanded = !this.isZonePopupExpanded
+    },
+
+    toggleReservationPopupExpanded() {
+      this.isReservationPopupExpanded = !this.isReservationPopupExpanded
+    },
+
+    handleTouchStart(event) {
+      this.isDragging = true
+      this.dragStartY = event.touches[0].clientY
+      this.dragCurrentY = this.dragStartY
+    },
+
+    handleTouchMove(event) {
+      if (!this.isDragging) return
+      event.preventDefault()
+      this.dragCurrentY = event.touches[0].clientY
+
+      const dragDistance = this.dragStartY - this.dragCurrentY
+      // Optional: Add visual feedback during drag
+      // You can add transform styles here if needed
+    },
+
+    handleTouchEnd() {
+      if (!this.isDragging) return
+      this.isDragging = false
+
+      const dragDistance = this.dragStartY - this.dragCurrentY
+      const threshold = this.dragThreshold
+
+      if (Math.abs(dragDistance) > threshold) {
+        if (dragDistance > 0) {
+          // Dragged up - expand
+          if (this.showZonePopup) this.isZonePopupExpanded = true
+          if (this.showReservationPopup) this.isReservationPopupExpanded = true
+        } else {
+          // Dragged down - collapse
+          if (this.showZonePopup) this.isZonePopupExpanded = false
+          if (this.showReservationPopup) this.isReservationPopupExpanded = false
+        }
+      }
+
+      this.resetDragState()
+    },
+
+    handleMouseDown(event) {
+      this.isMouseDragging = true
+      this.isDragging = true
+      this.dragStartY = event.clientY
+      this.dragCurrentY = this.dragStartY
+      event.preventDefault()
+    },
+
+    handleGlobalMouseMove(event) {
+      if (!this.isDragging || !this.isMouseDragging) return
+      this.dragCurrentY = event.clientY
+
+      const dragDistance = this.dragStartY - this.dragCurrentY
+      // Optional: Add visual feedback during drag
+      // You can add transform styles here if needed
+    },
+
+    handleGlobalMouseUp() {
+      if (!this.isDragging || !this.isMouseDragging) return
+      this.isDragging = false
+      this.isMouseDragging = false
+
+      const dragDistance = this.dragStartY - this.dragCurrentY
+      const threshold = this.dragThreshold
+
+      if (Math.abs(dragDistance) > threshold) {
+        if (dragDistance > 0) {
+          // Dragged up - expand
+          if (this.showZonePopup) this.isZonePopupExpanded = true
+          if (this.showReservationPopup) this.isReservationPopupExpanded = true
+        } else {
+          // Dragged down - collapse
+          if (this.showZonePopup) this.isZonePopupExpanded = false
+          if (this.showReservationPopup) this.isReservationPopupExpanded = false
+        }
+      }
+
+      this.resetDragState()
+    },
+
+    resetDragState() {
+      this.isDragging = false
+      this.isMouseDragging = false
+      this.dragStartY = 0
+      this.dragCurrentY = 0
+    },
+
+    beginBikeReservation() {
+      if (this.selectedBike) {
+        alert(`Reservation started for bike: ${this.selectedBike.model} (ID: ${this.selectedBike.id})`)
+        this.closeReservationPopup()
+      }
     },
   },
 }
@@ -353,13 +516,15 @@ ID: ${bike.id}`)
 .map-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: 100vh;
+  position: relative;
 }
 
 .map-view {
   width: 100%;
   height: 500px;
   margin-bottom: 20px;
+  flex: 1;
 }
 
 .controls {
@@ -389,7 +554,6 @@ button:hover {
   background-color: #45a049;
 }
 
-/* Custom bike marker styling */
 :deep(.bike-marker-icon) {
   background: none;
   border: none;
@@ -403,7 +567,6 @@ button:hover {
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
 }
 
-/* Custom popup styling */
 :deep(.custom-popup) {
   min-width: 200px;
 }
@@ -427,123 +590,299 @@ button:hover {
   color: white;
 }
 
-/* Zone styling */
-:deep(.zone-popup) {
-  min-width: 200px;
+.bottom-popup {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  /* background: rgba(0, 0, 0, 0.5); */
+  z-index: 10000;
+  display: flex;
+  align-items: flex-end;
+  animation: fadeIn 0.3s ease-out;
 }
 
-:deep(.color-selection) {
+.bottom-popup.full-screen {
+  align-items: stretch;
+}
+
+.bottom-popup-content {
+  background: white;
+  width: 100%;
+  border-radius: 20px 20px 0 0;
+  padding: 20px;
+  max-height: 70vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease-out;
+  transition: all 0.3s ease-out;
+}
+
+.bottom-popup-content.expanded {
+  height: 100vh;
+  max-height: 100vh;
+  border-radius: 0;
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 12px;
+  position: relative;
+}
+
+.drag-handle {
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 30px;
+  cursor: grab;
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin: 10px 0;
+  justify-content: center;
+  z-index: 1;
+  padding: 10px;
 }
 
-:deep(.color-option) {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  cursor: pointer;
-  border: 1px solid #ccc;
+.drag-handle:active {
+  cursor: grabbing;
 }
 
-:deep(.zone-name) {
-  width: 100%;
-  padding: 5px;
-  margin: 5px 0 10px 0;
+.drag-indicator {
+  width: 40px;
+  height: 4px;
+  background-color: #ccc;
+  border-radius: 2px;
+  transition: background-color 0.2s, width 0.2s;
 }
 
-:deep(.save-zone-button) {
-  background-color: #2196f3;
-  color: white;
-  padding: 5px 10px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+.drag-handle:hover .drag-indicator {
+  background-color: #999;
+  width: 50px;
 }
 
-:deep(.zone-label) {
-  background: rgba(255, 255, 255, 0.8);
-  border: none;
-  border-radius: 4px;
-  padding: 5px;
-  font-weight: bold;
-  text-align: center;
+.drag-handle:active .drag-indicator {
+  background-color: #666;
 }
 
-/* Zone bikes popup styling */
-:deep(.zone-bikes-popup-container .leaflet-popup-content-wrapper) {
-  border-radius: 8px;
-}
-
-:deep(.zone-bikes-popup) {
-  min-width: 250px;
-}
-
-:deep(.zone-bikes-popup h3) {
-  margin: 0 0 8px 0;
+.popup-header h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
   color: #333;
-  font-size: 18px;
 }
 
-:deep(.zone-address) {
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #666;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.close-btn:hover {
+  background-color: #f0f0f0;
+}
+
+.zone-subtitle {
   margin: 0 0 8px 0;
   color: #666;
   font-size: 14px;
 }
 
-:deep(.bikes-count) {
-  margin: 0 0 12px 0;
-  font-weight: bold;
-  color: #2196f3;
+.bikes-count {
+  margin: 0 0 20px 0;
+  font-weight: 600;
+  color: #00897B;
+  font-size: 16px;
 }
 
-:deep(.bikes-list) {
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-:deep(.bike-item) {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px;
-  margin-bottom: 8px;
-  background-color: #f9f9f9;
-  border-radius: 4px;
-  border: 1px solid #e0e0e0;
-}
-
-:deep(.bike-info) {
+.bikes-container {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 12px;
 }
 
-:deep(.bike-price) {
-  color: #4caf50;
-  font-weight: bold;
-  font-size: 12px;
+.bike-card {
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid #e9ecef;
 }
 
-:deep(.select-bike-btn) {
-  background-color: #2196f3;
+.bike-card:hover {
+  background-color: #e3f2fd;
+  border-color: #2196f3;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.bike-card-content {
+  margin-bottom: 16px;
+}
+
+.bike-name {
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+}
+
+.bike-details {
+  background-color: white;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.bike-detail {
+  display: flex;
+  justify-content: space-between;
+  font-size: 16px;
+}
+
+.bike-detail span:first-child {
+  color: #666;
+}
+
+.price {
+  font-weight: 600;
+  color: #00897B;
+}
+
+.select-bike-btn {
+  background-color: #00897B;
   color: white;
   border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
+  border-radius: 12px;
+  padding: 12px 20px;
+  width: 100%;
+  font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
-  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
 }
 
-:deep(.select-bike-btn:hover) {
-  background-color: #1976d2;
+.select-bike-btn:hover {
+  background-color: #00695C;
 }
 
-:deep(.no-bikes) {
+.select-bike-btn .icon {
+  margin-right: 8px;
+  font-size: 14px;
+}
+
+.no-bikes {
+  margin: 20px 0;
+}
+
+.no-bikes-content {
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.no-bikes-content p {
+  margin: 0;
   color: #666;
   font-style: italic;
+}
+
+.bike-model {
+  font-weight: 600;
+  font-size: 18px;
+  margin-bottom: 20px;
+  color: #333;
   text-align: center;
-  padding: 20px;
+}
+
+.reservation-details {
+  margin-bottom: 30px;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.reservation-detail {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 16px;
+}
+
+.reservation-detail:last-child {
+  margin-bottom: 0;
+}
+
+.reservation-detail span:first-child {
+  color: #666;
+}
+
+.reservation-detail span:last-child {
+  font-weight: 600;
+  color: #333;
+}
+
+.begin-reservation-btn {
+  background-color: #00897B;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 16px 20px;
+  width: 100%;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.begin-reservation-btn:hover {
+  background-color: #00695C;
+}
+
+.begin-reservation-btn .icon {
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
 }
 </style>
