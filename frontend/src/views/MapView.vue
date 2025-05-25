@@ -304,7 +304,7 @@ ID: ${bike.id}`)
           <div class="bike-item" data-bike-id="${bike.id}">
             <div class="bike-info">
               <strong>${bike.model}</strong>
-              <span class="bike-price">${bike.rentPrice}€/min</span>
+              <span class="bike-price">${bike.pricePerMinute}€/min</span>
             </div>
             <button class="select-bike-btn" data-bike-id="${bike.id}">Select</button>
           </div>
