@@ -5,6 +5,7 @@ Accept: application/json
 
 @token = 
 
+### Note: The @token variable will be dynamically set after the login step.
 @reportId = f1e3fd3f-7848-452a-96d1-c8cce6422b61
 @zoneId = 9630c12e-5e17-4a66-b5c5-72df996302ce
 @bikeId = d4905f6d-f4a2-460d-9250-c6903e091405
