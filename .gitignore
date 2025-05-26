@@ -21,7 +21,6 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
-[Ll]ogs/
 
 # .NET Core
 project.lock.json
@@ -54,3 +53,5 @@ TestResult.xml
 nunit-*.xml
 
 *.vs/
+.config
+.idea
