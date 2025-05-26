@@ -1,14 +1,56 @@
 <template>
   <div class="map-container">
-    <h1>Bike Rental Map</h1>
+    <!-- Floating User Icon -->
+    <div v-if="isLoggedIn" class="floating-user-icon" @click="goToUserPage">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+        <path
+          d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+      </svg>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div v-if="toastMessage" class="toast-notification" :class="toastType">
+      <div class="toast-content">
+        <span>{{ toastMessage }}</span>
+        <button @click="closeToast" class="toast-close">×</button>
+      </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div v-if="showConfirmModal" class="modal-overlay" @click="closeConfirmModal">
+      <div class="confirmation-modal" @click.stop>
+        <h3>{{ confirmModal.title }}</h3>
+        <p>{{ confirmModal.message }}</p>
+        <div class="modal-actions">
+          <button @click="closeConfirmModal" class="cancel-btn-modal">Cancel</button>
+          <button @click="confirmAction" class="confirm-btn-modal">{{ confirmModal.confirmText }}</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Problem Report Modal -->
+    <div v-if="showProblemModal" class="modal-overlay" @click="closeProblemModal">
+      <div class="problem-modal" @click.stop>
+        <h3>Report a Problem</h3>
+        <div class="problem-options">
+          <button v-for="(problem, index) in problemTypes" :key="index" @click="selectProblem(problem)"
+            class="problem-option">
+            {{ problem }}
+          </button>
+        </div>
+        <button @click="closeProblemModal" class="cancel-btn-modal">Cancel</button>
+      </div>
+    </div>
+
+    <h1 class="desktop-only">Bike Rental Map</h1>
     <div id="map" class="map-view"></div>
 
-    <div class="controls">
+    <div class="controls desktop-only">
       <button @click="addBikeMarker">Add Bike Marker</button>
       <button @click="addZone">Add Custom Zone</button>
       <button @click="clearOverlays">Clear Overlays</button>
     </div>
-    <div class="auth-status">
+    <div class="auth-status desktop-only">
       <span v-if="isLoggedIn">Logged in as: {{ userEmail }}</span>
       <span v-else>Not logged in. Please <router-link to="/login">login</router-link> to access all
         features.</span>
@@ -227,7 +269,7 @@
             <div class="breakdown-item total-line">
               <span>Total:</span>
               <span class="breakdown-total">{{ (costBreakdown.reservationCost + costBreakdown.rideCost).toFixed(2)
-                }}€</span>
+              }}€</span>
             </div>
           </div>
         </div>
@@ -311,6 +353,29 @@ export default {
         reservationStartCost: 0 // Track cost at start of ride
       },
 
+      // Toast notification system
+      toastMessage: '',
+      toastType: 'success', // 'success', 'error', 'warning', 'info'
+      toastTimer: null,
+
+      // Confirmation modal
+      showConfirmModal: false,
+      confirmModal: {
+        title: '',
+        message: '',
+        confirmText: 'Confirm',
+        action: null
+      },
+
+      // Problem report modal
+      showProblemModal: false,
+      problemTypes: [
+        'Bike is damaged',
+        'Bike won\'t unlock',
+        'Bike won\'t lock',
+        'Battery is dead',
+        'Other issue'
+      ],
     }
   },
   mounted() {
@@ -411,7 +476,7 @@ export default {
     },
 
     addZone() {
-      alert('Click on the map to start drawing a zone. Double-click to finish.')
+      this.showToast('Click on the map to start drawing a zone. Double-click to finish.', 'info')
 
       const points = []
       let polygon = null
@@ -822,16 +887,75 @@ ID: ${bike.id}`)
       }
     },
 
+    // Toast notification methods
+    showToast(message, type = 'success', duration = 4000) {
+      this.toastMessage = message
+      this.toastType = type
+
+      if (this.toastTimer) {
+        clearTimeout(this.toastTimer)
+      }
+
+      this.toastTimer = setTimeout(() => {
+        this.closeToast()
+      }, duration)
+    },
+
+    closeToast() {
+      this.toastMessage = ''
+      if (this.toastTimer) {
+        clearTimeout(this.toastTimer)
+        this.toastTimer = null
+      }
+    },
+
+    // Confirmation modal methods
+    showConfirmation(title, message, confirmText = 'Confirm') {
+      return new Promise((resolve) => {
+        this.confirmModal = {
+          title,
+          message,
+          confirmText,
+          action: resolve
+        }
+        this.showConfirmModal = true
+      })
+    },
+
+    confirmAction() {
+      if (this.confirmModal.action) {
+        this.confirmModal.action(true)
+      }
+      this.closeConfirmModal()
+    },
+
+    closeConfirmModal() {
+      if (this.confirmModal.action) {
+        this.confirmModal.action(false)
+      }
+      this.showConfirmModal = false
+      this.confirmModal = { title: '', message: '', confirmText: 'Confirm', action: null }
+    },
+
+    // Problem report modal methods
+    openProblemModal() {
+      this.showProblemModal = true
+    },
+
+    closeProblemModal() {
+      this.showProblemModal = false
+    },
+
     selectBike(bike) {
       // Check if user already has an active rental
       if (this.activeRental) {
-        alert('You already have an active bike rental. Please complete your current ride first.')
+        this.showToast('You already have an active bike rental. Please complete your current ride first.', 'warning')
         return
       }
 
       // Check if user already has an active reservation
       if (this.activeReservation) {
-        alert('You already have an active bike reservation. Please complete or cancel your current reservation first.')
+        this.showToast('You already have an active bike reservation. Please complete or cancel your current reservation first.', 'warning')
         return
       }
 
@@ -839,6 +963,286 @@ ID: ${bike.id}`)
       this.showZonePopup = false
       this.showReservationPopup = true
       this.isReservationPopupExpanded = false
+    },
+
+    async beginBikeReservation() {
+      if (this.selectedBike) {
+        const bikeModel = this.selectedBike.model
+        const bikeId = this.selectedBike.id
+
+        try {
+          const response = await api.getActiveReservation()
+          if (response.data) {
+            this.showToast('You already have an active reservation.', 'warning')
+            this.closeReservationPopup()
+            this.activeReservation = response.data
+            this.showActiveReservationPopup = true
+            this.startReservationTracking()
+            return
+          }
+        } catch (error) {
+          console.log('No active reservation found, proceeding with new reservation')
+        }
+
+        try {
+          console.log('Creating reservation for bike:', bikeId)
+          const reservationResponse = await api.createReservation(bikeId)
+          console.log('Reservation response:', reservationResponse)
+          this.activeReservation = reservationResponse.data
+          this.closeReservationPopup()
+          this.showActiveReservationPopup = true
+          this.startReservationTracking()
+
+          this.showToast(`Reservation created for bike: ${bikeModel}`, 'success')
+        } catch (error) {
+          console.error('Full error object:', error)
+
+          let errorMessage = 'Failed to create reservation. '
+          if (error.response?.data?.detail) {
+            errorMessage += error.response.data.detail
+          } else if (error.response?.data?.title) {
+            errorMessage += error.response.data.title
+          } else if (error.message) {
+            errorMessage += error.message
+          } else {
+            errorMessage += 'Please try again.'
+          }
+
+          this.showToast(errorMessage, 'error')
+        }
+      }
+    },
+
+    async unlockBike() {
+      if (!this.activeReservation) {
+        this.showToast('No active reservation found.', 'error')
+        return
+      }
+
+      try {
+        console.log('Starting rental for reservation:', this.activeReservation.id)
+
+        this.costBreakdown.reservationStartCost = parseFloat(this.currentCost)
+
+        const rentalResponse = await api.startRental(this.activeReservation.id)
+        console.log('Rental started:', rentalResponse)
+
+        this.activeRental = rentalResponse.data
+        this.rideStartTime = new Date()
+
+        this.originalZoneId = this.activeRental.startZoneId ||
+          this.activeReservation.zoneId ||
+          (this.selectedZone ? this.selectedZone.id : null)
+
+        this.activeReservation = null
+
+        this.showActiveReservationPopup = false
+        this.showOngoingRidePopup = true
+        this.clearTimers()
+        this.startRideTracking()
+
+        console.log('Bike unlocked, original zone ID:', this.originalZoneId)
+        console.log('Reservation cost at start:', this.costBreakdown.reservationStartCost)
+        this.showToast('Bike unlocked successfully! Your ride has started.', 'success')
+
+      } catch (error) {
+        console.error('Error starting rental:', error)
+
+        let errorMessage = 'Failed to unlock bike. '
+        if (error.response?.data?.detail) {
+          errorMessage += error.response.data.detail
+        } else if (error.response?.data?.title) {
+          errorMessage += error.response.data.title
+        } else if (error.message) {
+          errorMessage += error.message
+        } else {
+          errorMessage += 'Please try again.'
+        }
+
+        this.showToast(errorMessage, 'error')
+      }
+    },
+
+    async updateRideCost() {
+      if (!this.activeRental) return
+
+      try {
+        const costResponse = await api.getRentalCost(this.activeRental.id)
+        this.currentRideCost = costResponse.data.toFixed(2)
+      } catch (error) {
+        console.error('Error updating ride cost:', error)
+      }
+    },
+
+    updateRideTime() {
+      if (!this.rideStartTime) return
+
+      const now = new Date()
+      const elapsedMs = now.getTime() - this.rideStartTime.getTime()
+
+      const hours = Math.floor(elapsedMs / (1000 * 60 * 60))
+      const minutes = Math.floor((elapsedMs % (1000 * 60 * 60)) / (1000 * 60))
+      const seconds = Math.floor((elapsedMs % (1000 * 60)) / 1000)
+
+      if (hours > 0) {
+        this.rideTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+      } else {
+        this.rideTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+      }
+
+      if (seconds === 0 && minutes > this.lastRideMinute) {
+        this.lastRideMinute = minutes
+        console.log(`Ride time hit ${minutes} minutes, fetching updated cost...`)
+        this.updateRideCost()
+      }
+    },
+
+    async lockBike() {
+      if (!this.activeRental) return
+
+      try {
+        await api.lockBike(this.activeRental.id)
+        this.isBikeLocked = true
+        this.showToast('Bike locked successfully!', 'success')
+      } catch (error) {
+        console.error('Error locking bike:', error)
+        this.showToast('Failed to lock bike. Please try again.', 'error')
+      }
+    },
+
+    async unlockBikeRental() {
+      if (!this.activeRental) return
+
+      try {
+        await api.unlockBike(this.activeRental.id)
+        this.isBikeLocked = false
+        this.showToast('Bike unlocked successfully!', 'success')
+      } catch (error) {
+        console.error('Error unlocking bike:', error)
+        this.showToast('Failed to unlock bike. Please try again.', 'error')
+      }
+    },
+
+    async finishRide() {
+      if (!this.activeRental) {
+        this.showToast('No active rental found.', 'error')
+        return
+      }
+
+      if (!this.originalZoneId) {
+        this.showToast('Error: Original zone information not found. Please contact support.', 'error')
+        return
+      }
+
+      const confirmed = await this.showConfirmation(
+        'Finish Ride',
+        'Are you sure you want to finish your ride? This will end the rental and calculate the final cost.',
+        'Finish Ride'
+      )
+
+      if (!confirmed) return
+
+      try {
+        console.log('Ending rental:', this.activeRental.id, 'with zone:', this.originalZoneId)
+        const endResponse = await api.endRental(this.activeRental.id, this.originalZoneId)
+        console.log('Rental ended:', endResponse)
+
+        this.finalRideCost = this.currentRideCost
+        this.finalRideTime = this.rideTime
+
+        await this.calculateCostBreakdownFromRental()
+
+        this.activeRental = null
+
+        this.showOngoingRidePopup = false
+        this.showPaymentPopup = true
+        this.clearTimers()
+
+        this.showToast('Ride finished! Please proceed with payment.', 'success')
+
+      } catch (error) {
+        console.error('Error ending rental:', error)
+
+        let errorMessage = 'Failed to finish ride. '
+        if (error.response?.data?.detail) {
+          errorMessage += error.response.data.detail
+        } else if (error.response?.data?.title) {
+          errorMessage += error.response.data.title
+        } else if (error.message) {
+          errorMessage += error.message
+        } else {
+          errorMessage += 'Please try again.'
+        }
+
+        this.showToast(errorMessage, 'error')
+      }
+    },
+
+    async calculateCostBreakdownFromRental() {
+      const totalCost = parseFloat(this.finalRideCost)
+      let reservationCost = 0
+
+      if (this.activeRental && this.activeRental.reservationId) {
+        try {
+          const reservationCostResponse = await api.getReservationCost(this.activeRental.reservationId)
+          reservationCost = reservationCostResponse.data
+
+          console.log('Final reservation cost:', reservationCost)
+        } catch (error) {
+          console.error('Error fetching final reservation cost:', error)
+          reservationCost = this.costBreakdown.reservationStartCost || 0
+        }
+      } else {
+        reservationCost = this.costBreakdown.reservationStartCost || 0
+      }
+
+      const rideCost = Math.max(0, totalCost - reservationCost)
+
+      this.costBreakdown = {
+        showBreakdown: true,
+        reservationCost: Math.max(0, reservationCost),
+        rideCost: rideCost,
+        reservationStartCost: reservationCost
+      }
+
+      console.log('Cost breakdown calculated from rental:', {
+        total: totalCost,
+        reservation: this.costBreakdown.reservationCost,
+        ride: this.costBreakdown.rideCost,
+        reservationId: this.activeRental?.reservationId
+      })
+    },
+
+    calculateCostBreakdown() {
+      const totalCost = parseFloat(this.finalRideCost)
+      const reservationCost = this.costBreakdown.reservationStartCost
+      const rideCost = totalCost - reservationCost
+
+      this.costBreakdown = {
+        showBreakdown: true,
+        reservationCost: Math.max(0, reservationCost),
+        rideCost: Math.max(0, rideCost),
+        reservationStartCost: reservationCost
+      }
+
+      console.log('Cost breakdown calculated:', {
+        total: totalCost,
+        reservation: this.costBreakdown.reservationCost,
+        ride: this.costBreakdown.rideCost
+      })
+    },
+
+    togglePaymentExpanded() {
+      this.isPaymentExpanded = !this.isPaymentExpanded
+    },
+
+    payForRide() {
+      this.showToast(`Payment of ${this.finalRideCost}€ processed successfully! Thank you for using our service.`, 'success')
+      this.closePaymentPopup()
+    },
+
+    goToUserPage() {
+      this.$router.push('/user')
     },
 
     closeReservationPopup() {
@@ -959,329 +1363,6 @@ ID: ${bike.id}`)
       this.dragStartY = 0
       this.dragCurrentY = 0
     },
-
-    async beginBikeReservation() {
-      if (this.selectedBike) {
-        const bikeModel = this.selectedBike.model
-        const bikeId = this.selectedBike.id
-
-        try {
-          const response = await api.getActiveReservation()
-          if (response.data) {
-            alert('You already have an active reservation.')
-            this.closeReservationPopup()
-            this.activeReservation = response.data
-            this.showActiveReservationPopup = true
-            this.startReservationTracking()
-            return
-          }
-        } catch (error) {
-          console.log('No active reservation found, proceeding with new reservation')
-        }
-
-        try {
-          console.log('Creating reservation for bike:', bikeId)
-          const reservationResponse = await api.createReservation(bikeId)
-          console.log('Reservation response:', reservationResponse)
-          this.activeReservation = reservationResponse.data
-          this.closeReservationPopup()
-          this.showActiveReservationPopup = true
-          this.startReservationTracking()
-
-          alert(`Reservation created for bike: ${bikeModel}`)
-        } catch (error) {
-          console.error('Full error object:', error)
-          console.error('Error response:', error.response)
-          console.error('Error message:', error.message)
-          console.error('Error status:', error.response?.status)
-          console.error('Error data:', error.response?.data)
-
-          let errorMessage = 'Failed to create reservation. '
-          if (error.response?.data?.detail) {
-            errorMessage += error.response.data.detail
-          } else if (error.response?.data?.title) {
-            errorMessage += error.response.data.title
-          } else if (error.message) {
-            errorMessage += error.message
-          } else {
-            errorMessage += 'Please try again.'
-          }
-
-          alert(errorMessage)
-        }
-      }
-    },
-
-    async unlockBike() {
-      if (!this.activeReservation) {
-        alert('No active reservation found.')
-        return
-      }
-
-      try {
-        console.log('Starting rental for reservation:', this.activeReservation.id)
-
-        this.costBreakdown.reservationStartCost = parseFloat(this.currentCost)
-
-        const rentalResponse = await api.startRental(this.activeReservation.id)
-        console.log('Rental started:', rentalResponse)
-
-        this.activeRental = rentalResponse.data
-        this.rideStartTime = new Date()
-
-        this.originalZoneId = this.activeRental.startZoneId ||
-          this.activeReservation.zoneId ||
-          (this.selectedZone ? this.selectedZone.id : null)
-
-        this.activeReservation = null
-
-        this.showActiveReservationPopup = false
-        this.showOngoingRidePopup = true
-        this.clearTimers()
-        this.startRideTracking()
-
-        console.log('Bike unlocked, original zone ID:', this.originalZoneId)
-        console.log('Reservation cost at start:', this.costBreakdown.reservationStartCost)
-        alert('Bike unlocked successfully! Your ride has started.')
-
-      } catch (error) {
-        console.error('Error starting rental:', error)
-
-        let errorMessage = 'Failed to unlock bike. '
-        if (error.response?.data?.detail) {
-          errorMessage += error.response.data.detail
-        } else if (error.response?.data?.title) {
-          errorMessage += error.response.data.title
-        } else if (error.message) {
-          errorMessage += error.message
-        } else {
-          errorMessage += 'Please try again.'
-        }
-
-        alert(errorMessage)
-      }
-    },
-
-    async updateRideCost() {
-      if (!this.activeRental) return
-
-      try {
-        const costResponse = await api.getRentalCost(this.activeRental.id)
-        this.currentRideCost = costResponse.data.toFixed(2)
-      } catch (error) {
-        console.error('Error updating ride cost:', error)
-      }
-    },
-
-    updateRideTime() {
-      if (!this.rideStartTime) return
-
-      const now = new Date()
-      const elapsedMs = now.getTime() - this.rideStartTime.getTime()
-
-      const hours = Math.floor(elapsedMs / (1000 * 60 * 60))
-      const minutes = Math.floor((elapsedMs % (1000 * 60 * 60)) / (1000 * 60))
-      const seconds = Math.floor((elapsedMs % (1000 * 60)) / 1000)
-
-      if (hours > 0) {
-        this.rideTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
-      } else {
-        this.rideTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
-      }
-
-      if (seconds === 0 && minutes > this.lastRideMinute) {
-        this.lastRideMinute = minutes
-        console.log(`Ride time hit ${minutes} minutes, fetching updated cost...`)
-        this.updateRideCost()
-      }
-    },
-
-    async lockBike() {
-      if (!this.activeRental) return
-
-      try {
-        await api.lockBike(this.activeRental.id)
-        this.isBikeLocked = true
-        alert('Bike locked successfully!')
-      } catch (error) {
-        console.error('Error locking bike:', error)
-        alert('Failed to lock bike. Please try again.')
-      }
-    },
-
-    async unlockBikeRental() {
-      if (!this.activeRental) return
-
-      try {
-        await api.unlockBike(this.activeRental.id)
-        this.isBikeLocked = false
-        alert('Bike unlocked successfully!')
-      } catch (error) {
-        console.error('Error unlocking bike:', error)
-        alert('Failed to unlock bike. Please try again.')
-      }
-    },
-
-    async finishRide() {
-      if (!this.activeRental) {
-        alert('No active rental found.')
-        return
-      }
-
-      if (!this.originalZoneId) {
-        alert('Error: Original zone information not found. Please contact support.')
-        return
-      }
-
-      const confirmed = confirm('Are you sure you want to finish your ride? This will end the rental and calculate the final cost.')
-      if (!confirmed) return
-
-      try {
-        console.log('Ending rental:', this.activeRental.id, 'with zone:', this.originalZoneId)
-        const endResponse = await api.endRental(this.activeRental.id, this.originalZoneId)
-        console.log('Rental ended:', endResponse)
-
-        this.finalRideCost = this.currentRideCost
-        this.finalRideTime = this.rideTime
-
-        await this.calculateCostBreakdownFromRental()
-
-        this.activeRental = null
-
-        this.showOngoingRidePopup = false
-        this.showPaymentPopup = true
-        this.clearTimers()
-
-        alert('Ride finished! Please proceed with payment.')
-
-      } catch (error) {
-        console.error('Error ending rental:', error)
-
-        let errorMessage = 'Failed to finish ride. '
-        if (error.response?.data?.detail) {
-          errorMessage += error.response.data.detail
-        } else if (error.response?.data?.title) {
-          errorMessage += error.response.data.title
-        } else if (error.message) {
-          errorMessage += error.message
-        } else {
-          errorMessage += 'Please try again.'
-        }
-
-        alert(errorMessage)
-      }
-    },
-
-    async calculateCostBreakdownFromRental() {
-      const totalCost = parseFloat(this.finalRideCost)
-      let reservationCost = 0
-
-      if (this.activeRental && this.activeRental.reservationId) {
-        try {
-          const reservationCostResponse = await api.getReservationCost(this.activeRental.reservationId)
-          reservationCost = reservationCostResponse.data
-
-          console.log('Final reservation cost:', reservationCost)
-        } catch (error) {
-          console.error('Error fetching final reservation cost:', error)
-          reservationCost = this.costBreakdown.reservationStartCost || 0
-        }
-      } else {
-        reservationCost = this.costBreakdown.reservationStartCost || 0
-      }
-
-      const rideCost = Math.max(0, totalCost - reservationCost)
-
-      this.costBreakdown = {
-        showBreakdown: true,
-        reservationCost: Math.max(0, reservationCost),
-        rideCost: rideCost,
-        reservationStartCost: reservationCost
-      }
-
-      console.log('Cost breakdown calculated from rental:', {
-        total: totalCost,
-        reservation: this.costBreakdown.reservationCost,
-        ride: this.costBreakdown.rideCost,
-        reservationId: this.activeRental?.reservationId
-      })
-    },
-
-    calculateCostBreakdown() {
-      const totalCost = parseFloat(this.finalRideCost)
-      const reservationCost = this.costBreakdown.reservationStartCost
-      const rideCost = totalCost - reservationCost
-
-      this.costBreakdown = {
-        showBreakdown: true,
-        reservationCost: Math.max(0, reservationCost),
-        rideCost: Math.max(0, rideCost),
-        reservationStartCost: reservationCost
-      }
-
-      console.log('Cost breakdown calculated:', {
-        total: totalCost,
-        reservation: this.costBreakdown.reservationCost,
-        ride: this.costBreakdown.rideCost
-      })
-    },
-
-    togglePaymentExpanded() {
-      this.isPaymentExpanded = !this.isPaymentExpanded
-    },
-
-    closePaymentPopup() {
-      this.showPaymentPopup = false
-      this.isPaymentExpanded = false
-
-      this.activeRental = null
-      this.originalZoneId = null
-      this.currentRideCost = '0.00'
-      this.rideTime = '00:00'
-      this.rideStartTime = null
-      this.isBikeLocked = false
-      this.lastRideMinute = -1
-      this.finalRideCost = '0.00'
-      this.finalRideTime = '00:00'
-
-      this.costBreakdown = {
-        showBreakdown: false,
-        reservationCost: 0,
-        rideCost: 0,
-        reservationStartCost: 0
-      }
-
-      if (this.isLoggedIn) {
-        this.fetchAndDisplayZones()
-      }
-    },
-
-    payForRide() {
-      alert(`Payment of ${this.finalRideCost}€ processed successfully! Thank you for using our service.`)
-      this.closePaymentPopup()
-    },
-
-    startRideTracking() {
-      if (!this.activeRental) return
-
-      // Initially assume bike is unlocked when ride starts
-      this.isBikeLocked = false
-      this.lastRideMinute = -1
-
-      // Update ride time every second
-      this.rideTimer = setInterval(() => {
-        this.updateRideTime()
-      }, 1000)
-
-      // Update cost every 30 seconds
-      this.costUpdateTimer = setInterval(async () => {
-        await this.updateRideCost()
-      }, 30000)
-
-      // Initial cost update
-      this.updateRideCost()
-    },
-
   },
 }
 </script>
@@ -1292,13 +1373,49 @@ ID: ${bike.id}`)
   flex-direction: column;
   height: 100vh;
   position: relative;
+  overflow: hidden;
+}
+
+.floating-user-icon {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  background-color: #009688;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.floating-user-icon:hover {
+  background-color: #00796b;
+  transform: scale(1.1);
+}
+
+.floating-user-icon:active {
+  transform: scale(0.95);
+}
+
+.desktop-only {
+  display: none;
 }
 
 .map-view {
   width: 100%;
-  height: 500px;
-  margin-bottom: 20px;
+  height: 100vh;
   flex: 1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 .controls {
@@ -1479,7 +1596,7 @@ button:hover {
 .bikes-count {
   margin: 0 0 20px 0;
   font-weight: 600;
-  color: #00897B;
+  color: #00897b;
   font-size: 16px;
 }
 
@@ -1535,11 +1652,11 @@ button:hover {
 
 .price {
   font-weight: 600;
-  color: #00897B;
+  color: #00897b;
 }
 
 .select-bike-btn {
-  background-color: #00897B;
+  background-color: #00897b;
   color: white;
   border: none;
   border-radius: 12px;
@@ -1555,7 +1672,7 @@ button:hover {
 }
 
 .select-bike-btn:hover {
-  background-color: #00695C;
+  background-color: #00695c;
 }
 
 .select-bike-btn .icon {
@@ -1616,7 +1733,7 @@ button:hover {
 }
 
 .begin-reservation-btn {
-  background-color: #00897B;
+  background-color: #00897b;
   color: white;
   border: none;
   border-radius: 12px;
@@ -1632,7 +1749,7 @@ button:hover {
 }
 
 .begin-reservation-btn:hover {
-  background-color: #00695C;
+  background-color: #00695c;
 }
 
 .begin-reservation-btn .icon {
@@ -1670,7 +1787,7 @@ button:hover {
 
 .time-left {
   font-weight: 600;
-  color: #00897B;
+  color: #00897b;
   font-size: 18px;
 }
 
@@ -1701,7 +1818,7 @@ button:hover {
 }
 
 .unlock-bike-btn {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   border: none;
   border-radius: 12px;
@@ -1756,7 +1873,7 @@ button:hover {
 }
 
 .lock-status.unlocked {
-  color: #4CAF50;
+  color: #4caf50;
 }
 
 .lock-bike-btn {
@@ -1810,7 +1927,7 @@ button:hover {
 }
 
 .pay-btn {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   border: none;
   border-radius: 12px;
@@ -1927,5 +2044,208 @@ button:hover {
   to {
     transform: translateY(0);
   }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@media (min-width: 1024px) {
+  .map-container {
+    height: auto;
+    overflow: visible;
+  }
+
+  .desktop-only {
+    display: block;
+  }
+
+  .map-view {
+    position: relative;
+    height: 500px;
+    margin-bottom: 20px;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+  }
+}
+
+/* Toast Notifications */
+.toast-notification {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index: 10001;
+  max-width: 300px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: slideInRight 0.3s ease-out;
+}
+
+.toast-notification.success {
+  background-color: #4caf50;
+  color: white;
+}
+
+.toast-notification.error {
+  background-color: #f44336;
+  color: white;
+}
+
+.toast-notification.warning {
+  background-color: #ff9800;
+  color: white;
+}
+
+.toast-notification.info {
+  background-color: #2196f3;
+  color: white;
+}
+
+.toast-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  gap: 12px;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.toast-close:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 10002;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.confirmation-modal,
+.problem-modal {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 400px;
+  width: 90%;
+  animation: scaleIn 0.3s ease-out;
+}
+
+.confirmation-modal h3,
+.problem-modal h3 {
+  margin: 0 0 16px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+}
+
+.confirmation-modal p {
+  margin: 0 0 24px 0;
+  color: #666;
+  line-height: 1.5;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.cancel-btn-modal,
+.confirm-btn-modal {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cancel-btn-modal {
+  background-color: #f5f5f5;
+  color: #666;
+}
+
+.cancel-btn-modal:hover {
+  background-color: #e0e0e0;
+}
+
+.confirm-btn-modal {
+  background-color: #f44336;
+  color: white;
+}
+
+.confirm-btn-modal:hover {
+  background-color: #d32f2f;
+}
+
+/* Problem Modal */
+.problem-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.problem-option {
+  padding: 12px 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: white;
+  color: #333;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.problem-option:hover {
+  background-color: #f5f5f5;
+  border-color: #2196f3;
 }
 </style>

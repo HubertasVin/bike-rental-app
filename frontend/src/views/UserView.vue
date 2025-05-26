@@ -37,12 +37,15 @@ onMounted(async () => {
   }
 })
 
-const handleLogout = () => {
+const handleLogout = async () => {
+  const confirmed = confirm('Are you sure you want to log out?')
+  if (!confirmed) return
+
   try {
     isLoading.value = true
     authService.clearToken()
-    router.push('/login')
     console.log('User logged out successfully')
+    await router.push('/login')
   } catch (error) {
     console.error('Error during logout:', error)
   }
@@ -83,7 +86,6 @@ const updateProfile = async () => {
   }
 }
 
-
 const cancelEdit = () => {
   newName.value = name.value
   newEmail.value = email.value
@@ -91,10 +93,24 @@ const cancelEdit = () => {
   updateMessage.value = ''
   isEditing.value = false
 }
+
+const goToMap = () => {
+  router.push('/map')
+}
 </script>
 
 <template>
   <div class="user-profile">
+    <!-- Mobile Back Button -->
+    <div class="mobile-header">
+      <button class="back-button" @click="goToMap">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+        </svg>
+        Back to Map
+      </button>
+    </div>
+
     <div v-if="isLoading" class="loading-container">
       <div class="loading-spinner"></div>
       <p>Loading your profile...</p>
@@ -138,6 +154,34 @@ const cancelEdit = () => {
   padding: 20px;
   max-width: 600px;
   margin: 0 auto;
+  min-height: 100vh;
+}
+
+.mobile-header {
+  margin-bottom: 20px;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background-color: #009688;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.back-button:hover {
+  background-color: #00796b;
+}
+
+.back-button:active {
+  transform: scale(0.98);
 }
 
 .loading-container {
@@ -287,5 +331,15 @@ const cancelEdit = () => {
 
 .action-button:hover {
   background-color: #d32f2f;
+}
+
+@media (min-width: 1024px) {
+  .mobile-header {
+    display: none;
+  }
+
+  .user-profile {
+    min-height: auto;
+  }
 }
 </style>

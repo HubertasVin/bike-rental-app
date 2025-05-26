@@ -119,6 +119,11 @@ const getActiveRental = () => {
   return apiClient.get('/api/Rental/active')
 }
 
+const reportProblem = () => {
+  // Placeholder for reporting problems - would typically send to support endpoint
+  return Promise.resolve({ data: 'Problem reported successfully' })
+}
+
 export const api = {
   client: apiClient,
   fetch,
@@ -146,4 +151,6 @@ export const api = {
   unlockBike,
   endRental,
   getActiveRental,
+
+  reportProblem,
 }
