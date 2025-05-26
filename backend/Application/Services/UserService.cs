@@ -18,17 +18,11 @@ public class UserService : IUserService
 
     public async Task<UserDTO> CreateUserAsync(UserDTO dto)
     {
+        var exists = await _userRepository.EmailExistsAsync(dto.Email);
+        if (exists)
+            throw new ArgumentException("Email already exists");
 
-    var exists = await _userRepository.EmailExistsAsync(dto.Email);
-    if (exists)
-        throw new ArgumentException("Email already exists");
-
-        var user = new User(
-            Guid.NewGuid(),
-            dto.Name,
-            dto.Email,
-            dto.Password
-        );
+        var user = new User(Guid.NewGuid(), dto.Name, dto.Email, dto.Password);
 
         var created = await _userRepository.CreateAsync(user);
         return MapToDto(created);
@@ -58,9 +52,8 @@ public class UserService : IUserService
 
         var result = await _userRepository.UpdateAsync(existingUser);
         return result != null ? MapToDto(result) : null;
-
     }
-    
+
     public async Task<AuthDTO> LoginAsync(LoginDTO dto)
     {
         var user = await _userRepository.GetByEmailAsync(dto.Email);
@@ -80,8 +73,8 @@ public class UserService : IUserService
             Id = user.Id,
             Name = user.Name,
             Email = user.Email,
-            Password = user.PasswordHash
+            Password = user.PasswordHash,
+            Role = user.Roles.Any() ? user.Roles.First().ToString() : "User",
         };
-
     }
 }

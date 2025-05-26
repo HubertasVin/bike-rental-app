@@ -1,14 +1,29 @@
 using System.Reflection;
+using System.Security.Claims;
 using System.Text;
 using BikeRentalApp.Data;
+using BikeRentalApp.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.Console()
+    .WriteTo.File(
+        path: "Logs/log-.txt",
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 7
+    )
+    .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog();
 
 builder
     .Services.AddAuthentication(options =>
@@ -30,8 +45,15 @@ builder
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(jwtSettings["Key"]!)
             ),
+
+            NameClaimType = "name",
+            RoleClaimType = ClaimTypes.Role,
         };
     });
+
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
 
 // should make [Authorize] implicit
 builder.Services.AddControllers(options =>
@@ -100,6 +122,8 @@ builder.Services.Scan(scan =>
         .AsImplementedInterfaces()
         .WithScopedLifetime()
 );
+
+builder.Services.AddServiceLogging();
 
 builder.Services.AddCors(options =>
 {
