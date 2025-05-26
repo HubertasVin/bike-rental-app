@@ -1,0 +1,36 @@
+2025-05-26 23:30:01.776 +03:00 [INF] Executed DbCommand (27ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2025-05-26 23:30:02.288 +03:00 [INF] Executed DbCommand (11ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+    "MigrationId" character varying(150) NOT NULL,
+    "ProductVersion" character varying(32) NOT NULL,
+    CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
+);
+2025-05-26 23:30:02.301 +03:00 [INF] Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long.
+2025-05-26 23:30:02.303 +03:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+LOCK TABLE "__EFMigrationsHistory" IN ACCESS EXCLUSIVE MODE
+2025-05-26 23:30:02.304 +03:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2025-05-26 23:30:02.312 +03:00 [INF] No migrations were applied. The database is already up to date.
+2025-05-26 23:30:02.539 +03:00 [INF] User profile is available. Using '/home/hubertas/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-26 23:30:02.762 +03:00 [INF] Now listening on: http://localhost:5270
+2025-05-26 23:30:02.765 +03:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-26 23:30:02.774 +03:00 [INF] Hosting environment: Development
+2025-05-26 23:30:02.775 +03:00 [INF] Content root path: /home/hubertas/Documents/backup-folder/Programming/Java/bike-rental-app/backend
+2025-05-26 23:30:15.771 +03:00 [INF] Request starting HTTP/1.1 GET http://localhost:5270/api/Bike - null null
+2025-05-26 23:30:16.061 +03:00 [WRN] Failed to determine the https port for redirect.
+2025-05-26 23:30:16.066 +03:00 [INF] Executing endpoint 'BikeRentalApp.Controllers.BikeController.GetAll (BikeRentalApp)'
+2025-05-26 23:30:16.086 +03:00 [INF] Route matched with {action = "GetAll", controller = "Bike"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetAll() on controller BikeRentalApp.Controllers.BikeController (BikeRentalApp).
+2025-05-26 23:30:16.148 +03:00 [INF] User=string; Roles=User; Time=2025-05-26 20:30:16Z; Method=IBikeService.GetAllBikesAsync
+2025-05-26 23:30:16.825 +03:00 [INF] Executed DbCommand (25ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT b."Id", b."LockStatus", b."Model", b."PricePerMinute", b."Status", b."ZoneId", z."Id", z."Address", z."Capacity", z."Latitude1", z."Latitude2", z."Longitude1", z."Longitude2", z."Name"
+FROM "Bikes" AS b
+INNER JOIN "Zones" AS z ON b."ZoneId" = z."Id"
+2025-05-26 23:30:17.187 +03:00 [INF] Executing OkObjectResult, writing value of type 'System.Linq.Enumerable+ListSelectIterator`2[[BikeRentalApp.Domain.Entities.Bike, BikeRentalApp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[BikeRentalApp.Application.DTOs.BikeDTO, BikeRentalApp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-26 23:30:17.229 +03:00 [INF] Executed action BikeRentalApp.Controllers.BikeController.GetAll (BikeRentalApp) in 1136.242ms
+2025-05-26 23:30:17.236 +03:00 [INF] Executed endpoint 'BikeRentalApp.Controllers.BikeController.GetAll (BikeRentalApp)'
+2025-05-26 23:30:17.250 +03:00 [INF] Request finished HTTP/1.1 GET http://localhost:5270/api/Bike - 200 null application/json; charset=utf-8 1482.9391ms
