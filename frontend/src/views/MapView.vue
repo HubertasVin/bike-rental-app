@@ -84,6 +84,155 @@
         </button>
       </div>
     </div>
+
+    <!-- Active Reservation Status Popup -->
+    <div v-if="showActiveReservationPopup" class="bottom-popup reservation-status-overlay"
+      :class="{ 'full-screen': isActiveReservationExpanded }" @click="closeActiveReservationPopup">
+      <div class="bottom-popup-content" :class="{ 'expanded': isActiveReservationExpanded }" @click.stop>
+        <div class="popup-header">
+          <div class="drag-handle" @click.stop="toggleActiveReservationExpanded" @touchstart.stop="handleTouchStart"
+            @touchmove.stop="handleTouchMove" @touchend.stop="handleTouchEnd" @mousedown.stop="handleMouseDown">
+            <div class="drag-indicator"></div>
+          </div>
+          <h3>Bike reservation</h3>
+          <button class="close-btn" @click="closeActiveReservationPopup">×</button>
+        </div>
+        <p class="bike-model">{{ activeReservation?.bikeModel }}</p>
+
+        <div class="reservation-status">
+          <div class="status-item">
+            <span>Current price:</span>
+            <span class="cost">{{ currentCost }}€</span>
+          </div>
+          <div class="status-item">
+            <span>{{ isReservationFree ? 'Reservation time left:' : 'Paid reserved time:' }}</span>
+            <span class="time-left">{{ timeLeft }}</span>
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button class="unlock-bike-btn" @click="unlockBike">
+            <span class="unlock-icon">🔓</span>
+            Unlock bike
+          </button>
+
+          <button v-if="isReservationFree" class="cancel-reservation-btn" @click="cancelReservation">
+            <span class="cancel-icon">❌</span>
+            Cancel reservation
+          </button>
+
+          <div class="report-problem-link" @click="reportProblem">
+            Want to report a problem?
+          </div>
+        </div>
+
+        <div class="reservation-info">
+          <p v-if="isReservationFree" class="info-text">
+            After reservation time, you will pay per minute.
+          </p>
+          <p v-else class="info-text">
+            You are currently being charged per minute.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ongoing Ride Popup -->
+    <div v-if="showOngoingRidePopup" class="bottom-popup ride-popup-overlay"
+      :class="{ 'full-screen': isOngoingRideExpanded }" @click="closeOngoingRidePopup">
+      <div class="bottom-popup-content" :class="{ 'expanded': isOngoingRideExpanded }" @click.stop>
+        <div class="popup-header">
+          <div class="drag-handle" @click.stop="toggleOngoingRideExpanded" @touchstart.stop="handleTouchStart"
+            @touchmove.stop="handleTouchMove" @touchend.stop="handleTouchEnd" @mousedown.stop="handleMouseDown">
+            <div class="drag-indicator"></div>
+          </div>
+          <h3>Ongoing ride</h3>
+          <button class="close-btn" @click="closeOngoingRidePopup">×</button>
+        </div>
+
+        <div class="ride-status">
+          <div class="status-item">
+            <span>Current price:</span>
+            <span class="cost">{{ currentRideCost }}€</span>
+          </div>
+          <div class="status-item">
+            <span>Ride time:</span>
+            <span class="time-left">{{ rideTime }}</span>
+          </div>
+          <div class="status-item">
+            <span>Bike status:</span>
+            <span class="lock-status" :class="{ 'locked': isBikeLocked, 'unlocked': !isBikeLocked }">
+              {{ isBikeLocked ? '🔒 Locked' : '🔓 Unlocked' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button v-if="!isBikeLocked" class="lock-bike-btn" @click="lockBike">
+            <span class="lock-icon">🔒</span>
+            Lock bike
+          </button>
+
+          <button v-if="isBikeLocked" class="unlock-bike-btn" @click="unlockBikeRental">
+            <span class="unlock-icon">🔓</span>
+            Unlock bike
+          </button>
+
+          <button class="finish-ride-btn" @click="finishRide">
+            <span class="stop-icon">⏹</span>
+            Finish ride
+          </button>
+
+          <div class="report-problem-link" @click="reportProblem">
+            Want to report a problem?
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Popup -->
+    <div v-if="showPaymentPopup" class="bottom-popup payment-popup-overlay"
+      :class="{ 'full-screen': isPaymentExpanded }" @click="closePaymentPopup">
+      <div class="bottom-popup-content" :class="{ 'expanded': isPaymentExpanded }" @click.stop>
+        <div class="popup-header">
+          <div class="drag-handle" @click.stop="togglePaymentExpanded" @touchstart.stop="handleTouchStart"
+            @touchmove.stop="handleTouchMove" @touchend.stop="handleTouchEnd" @mousedown.stop="handleMouseDown">
+            <div class="drag-indicator"></div>
+          </div>
+          <h3>Ride completed</h3>
+          <button class="close-btn" @click="closePaymentPopup">×</button>
+        </div>
+
+        <div class="payment-status">
+          <div class="status-item">
+            <span>Final price:</span>
+            <span class="cost">{{ finalRideCost }}€</span>
+          </div>
+          <div class="status-item">
+            <span>Total ride time:</span>
+            <span class="time-left">{{ finalRideTime }}</span>
+          </div>
+
+          <!-- Cost Breakdown -->
+          <div v-if="costBreakdown.showBreakdown" class="cost-breakdown">
+            <div class="breakdown-header">Cost Breakdown:</div>
+            <div class="breakdown-item" v-if="costBreakdown.reservationCost > 0">
+              <span>Reservation cost:</span>
+              <span class="breakdown-cost">{{ costBreakdown.reservationCost.toFixed(2) }}€</span>
+            </div>
+            <div class="breakdown-item">
+              <span>Ride cost:</span>
+              <span class="breakdown-cost">{{ costBreakdown.rideCost.toFixed(2) }}€</span>
+            </div>
+            <div class="breakdown-item total-line">
+              <span>Total:</span>
+              <span class="breakdown-total">{{ (costBreakdown.reservationCost + costBreakdown.rideCost).toFixed(2)
+                }}€</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -125,6 +274,43 @@ export default {
       dragCurrentY: 0,
       dragThreshold: 100,
       isMouseDragging: false,
+      activeReservation: null,
+      showActiveReservationPopup: false,
+      isActiveReservationExpanded: false,
+      currentCost: '0.00',
+      isReservationFree: true,
+      timeLeft: '00:00',
+      reservationTimer: null,
+      costUpdateTimer: null,
+      previousTimeLeft: '00:00',
+      wasReservationFree: true,
+      paidTimeStart: null,
+      lastPaidMinute: -1, // Track the last minute we fetched cost for
+
+      // Ongoing ride data
+      showOngoingRidePopup: false,
+      isOngoingRideExpanded: false,
+      activeRental: null,
+      currentRideCost: '0.00',
+      rideTime: '00:00',
+      rideTimer: null,
+      rideStartTime: null,
+      isBikeLocked: false,
+      lastRideMinute: -1,
+      originalZoneId: null, // Store the original zone where bike was rented
+
+      // Payment data
+      showPaymentPopup: false,
+      isPaymentExpanded: false,
+      finalRideCost: '0.00',
+      finalRideTime: '00:00',
+      costBreakdown: {
+        showBreakdown: false,
+        reservationCost: 0,
+        rideCost: 0,
+        reservationStartCost: 0 // Track cost at start of ride
+      },
+
     }
   },
   mounted() {
@@ -139,11 +325,16 @@ export default {
     // Add global mouse event listeners
     document.addEventListener('mousemove', this.handleGlobalMouseMove)
     document.addEventListener('mouseup', this.handleGlobalMouseUp)
+
+    this.checkForActiveReservation()
+    this.checkForActiveRental()
   },
   beforeUnmount() {
     // Clean up global listeners
     document.removeEventListener('mousemove', this.handleGlobalMouseMove)
     document.removeEventListener('mouseup', this.handleGlobalMouseUp)
+
+    this.clearTimers()
   },
   methods: {
     checkAuthStatus() {
@@ -351,7 +542,7 @@ export default {
         })
 
         rectangle.on('click', () => {
-          this.showZoneBikes(zone, availableBikes)
+          this.handleZoneClick(zone, availableBikes)
         })
 
         this.overlays.push(rectangle)
@@ -382,6 +573,89 @@ Lock Status: ${bike.lockStatus}
 ID: ${bike.id}`)
     },
 
+    async checkForActiveReservation() {
+      if (!this.isLoggedIn) return
+
+      try {
+        const response = await api.getActiveReservation()
+        if (response.data) {
+          this.activeReservation = response.data
+          this.showActiveReservationPopup = true
+          this.startReservationTracking()
+        }
+      } catch (error) {
+        if (error.response?.status !== 404) {
+          console.error('Error checking active reservation:', error)
+        }
+      }
+    },
+
+    async checkForActiveRental() {
+      if (!this.isLoggedIn) return
+
+      try {
+        const response = await api.getActiveRental()
+        if (response.data) {
+          this.activeRental = response.data
+
+          // Store original zone ID from the rental data using startZoneId
+          this.originalZoneId = this.activeRental.startZoneId
+
+          // Set ride start time from rental data or use current time
+          this.rideStartTime = this.activeRental.startTime ?
+            new Date(this.activeRental.startTime) :
+            new Date()
+
+          // If there's a reservationId, fetch reservation cost for breakdown
+          if (this.activeRental.reservationId) {
+            await this.fetchReservationCostForBreakdown(this.activeRental.reservationId)
+          }
+
+          // Show ongoing ride popup
+          this.showOngoingRidePopup = true
+          this.startRideTracking()
+
+          console.log('Active rental found:', this.activeRental)
+          console.log('Original zone ID:', this.originalZoneId)
+        }
+      } catch (error) {
+        if (error.response?.status !== 404) {
+          console.error('Error checking active rental:', error)
+        }
+      }
+    },
+
+    async fetchReservationCostForBreakdown(reservationId) {
+      try {
+        // Get reservation cost for breakdown calculation
+        const reservationCostResponse = await api.getReservationCost(reservationId)
+        this.costBreakdown.reservationStartCost = reservationCostResponse.data
+
+        console.log('Fetched reservation cost for breakdown:', this.costBreakdown.reservationStartCost)
+      } catch (error) {
+        console.error('Error fetching reservation cost for breakdown:', error)
+        // If we can't get reservation cost, set to 0
+        this.costBreakdown.reservationStartCost = 0
+      }
+    },
+
+    handleZoneClick(zone, availableBikes) {
+      // If user has an active rental, show the rental popup instead
+      if (this.activeRental) {
+        this.showOngoingRidePopup = true
+        return
+      }
+
+      // If user has an active reservation, show the reservation popup instead
+      if (this.activeReservation) {
+        this.showActiveReservationPopup = true
+        return
+      }
+
+      // Otherwise, show zone bikes as normal
+      this.showZoneBikes(zone, availableBikes)
+    },
+
     showZoneBikes(zone, availableBikes) {
       this.selectedZone = zone
       this.availableBikes = availableBikes
@@ -396,7 +670,171 @@ ID: ${bike.id}`)
       this.isZonePopupExpanded = false
     },
 
+    async startReservationTracking() {
+      if (!this.activeReservation) return
+
+      // Get initial status
+      await this.updateReservationStatus()
+
+      // Update countdown every second for smooth display
+      this.reservationTimer = setInterval(() => {
+        this.updateTimeLeft()
+      }, 1000)
+
+      // Update cost and check API status every 30 seconds
+      this.costUpdateTimer = setInterval(async () => {
+        if (!this.isReservationFree) {
+          await this.updateCost()
+        }
+        // Refresh reservation status from API every 30 seconds
+        await this.updateReservationStatus()
+      }, 30000)
+    },
+
+    async updateReservationStatus() {
+      if (!this.activeReservation) return
+
+      try {
+        // Get fresh reservation data
+        const reservationResponse = await api.getActiveReservation()
+        if (reservationResponse.data) {
+          this.activeReservation = reservationResponse.data
+        }
+
+        // Check if reservation is still free
+        const freeResponse = await api.checkReservationIsFree(this.activeReservation.id)
+        this.isReservationFree = freeResponse.data
+
+        // Update cost
+        await this.updateCost()
+      } catch (error) {
+        console.error('Error updating reservation status:', error)
+      }
+    },
+
+    async updateCost() {
+      if (!this.activeReservation) return
+
+      try {
+        const costResponse = await api.getReservationCost(this.activeReservation.id)
+        this.currentCost = costResponse.data.toFixed(2)
+      } catch (error) {
+        console.error('Error updating cost:', error)
+      }
+    },
+
+    updateTimeLeft() {
+      if (!this.activeReservation) return
+
+      const now = new Date()
+      const startTime = new Date(this.activeReservation.startTime)
+
+      // Store previous values to detect transitions
+      const previousFreeStatus = this.isReservationFree
+
+      // If endTime is available, use it for countdown
+      if (this.activeReservation.endTime) {
+        const endTime = new Date(this.activeReservation.endTime)
+        const timeLeftMs = endTime.getTime() - now.getTime()
+
+        if (timeLeftMs <= 0) {
+          // Transition to paid time
+          if (this.isReservationFree) {
+            this.isReservationFree = false
+            this.paidTimeStart = new Date()
+            this.lastPaidMinute = -1 // Reset minute tracker
+          }
+
+          // Count up from when paid time started
+          if (this.paidTimeStart) {
+            const paidElapsedMs = now.getTime() - this.paidTimeStart.getTime()
+            const minutes = Math.floor(paidElapsedMs / (1000 * 60))
+            const seconds = Math.floor((paidElapsedMs % (1000 * 60)) / 1000)
+            this.timeLeft = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+
+            // Check if we hit a new minute (xx:00) during paid time
+            if (seconds === 0 && minutes > this.lastPaidMinute) {
+              this.lastPaidMinute = minutes
+              console.log(`Paid time hit ${minutes} minutes, fetching updated cost...`)
+              this.updateCost()
+            }
+          } else {
+            this.timeLeft = '00:00'
+          }
+        } else {
+          const minutes = Math.floor(timeLeftMs / (1000 * 60))
+          const seconds = Math.floor((timeLeftMs % (1000 * 60)) / 1000)
+          this.timeLeft = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+        }
+      } else {
+        // If no endTime, calculate based on 10 minute reservation period
+        const reservationDurationMs = 10 * 60 * 1000 // 10 minutes
+        const elapsedMs = now.getTime() - startTime.getTime()
+        const timeLeftMs = reservationDurationMs - elapsedMs
+
+        if (timeLeftMs <= 0) {
+          // Transition to paid time
+          if (this.isReservationFree) {
+            this.isReservationFree = false
+            this.paidTimeStart = new Date(startTime.getTime() + reservationDurationMs)
+            this.lastPaidMinute = -1 // Reset minute tracker
+          }
+
+          // Count up from when paid time started (10 minutes after start)
+          const paidElapsedMs = now.getTime() - (startTime.getTime() + reservationDurationMs)
+          const minutes = Math.floor(paidElapsedMs / (1000 * 60))
+          const seconds = Math.floor((paidElapsedMs % (1000 * 60)) / 1000)
+          this.timeLeft = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+
+          // Check if we hit a new minute (xx:00) during paid time
+          if (seconds === 0 && minutes > this.lastPaidMinute) {
+            this.lastPaidMinute = minutes
+            console.log(`Paid time hit ${minutes} minutes, fetching updated cost...`)
+            this.updateCost()
+          }
+        } else {
+          const minutes = Math.floor(timeLeftMs / (1000 * 60))
+          const seconds = Math.floor((timeLeftMs % (1000 * 60)) / 1000)
+          this.timeLeft = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+          this.isReservationFree = true
+        }
+      }
+
+      // Detect transition from free to paid and fetch cost
+      if (previousFreeStatus && !this.isReservationFree) {
+        console.log('Reservation transitioned from free to paid, fetching cost...')
+        this.updateCost()
+      }
+    },
+
+    clearTimers() {
+      if (this.reservationTimer) {
+        clearInterval(this.reservationTimer)
+        this.reservationTimer = null
+      }
+      if (this.costUpdateTimer) {
+        clearInterval(this.costUpdateTimer)
+        this.costUpdateTimer = null
+      }
+      if (this.rideTimer) {
+        clearInterval(this.rideTimer)
+        this.rideTimer = null
+      }
+    },
+
     selectBike(bike) {
+      // Check if user already has an active rental
+      if (this.activeRental) {
+        alert('You already have an active bike rental. Please complete your current ride first.')
+        return
+      }
+
+      // Check if user already has an active reservation
+      if (this.activeReservation) {
+        alert('You already have an active bike reservation. Please complete or cancel your current reservation first.')
+        return
+      }
+
       this.selectedBike = bike
       this.showZonePopup = false
       this.showReservationPopup = true
@@ -409,12 +847,28 @@ ID: ${bike.id}`)
       this.isReservationPopupExpanded = false
     },
 
+    closeActiveReservationPopup() {
+      this.showActiveReservationPopup = false
+    },
+
+    closeOngoingRidePopup() {
+      this.showOngoingRidePopup = false
+    },
+
     toggleZonePopupExpanded() {
       this.isZonePopupExpanded = !this.isZonePopupExpanded
     },
 
     toggleReservationPopupExpanded() {
       this.isReservationPopupExpanded = !this.isReservationPopupExpanded
+    },
+
+    toggleActiveReservationExpanded() {
+      this.isActiveReservationExpanded = !this.isActiveReservationExpanded
+    },
+
+    toggleOngoingRideExpanded() {
+      this.isOngoingRideExpanded = !this.isOngoingRideExpanded
     },
 
     handleTouchStart(event) {
@@ -427,10 +881,6 @@ ID: ${bike.id}`)
       if (!this.isDragging) return
       event.preventDefault()
       this.dragCurrentY = event.touches[0].clientY
-
-      const dragDistance = this.dragStartY - this.dragCurrentY
-      // Optional: Add visual feedback during drag
-      // You can add transform styles here if needed
     },
 
     handleTouchEnd() {
@@ -445,10 +895,16 @@ ID: ${bike.id}`)
           // Dragged up - expand
           if (this.showZonePopup) this.isZonePopupExpanded = true
           if (this.showReservationPopup) this.isReservationPopupExpanded = true
+          if (this.showActiveReservationPopup) this.isActiveReservationExpanded = true
+          if (this.showOngoingRidePopup) this.isOngoingRideExpanded = true
+          if (this.showPaymentPopup) this.isPaymentExpanded = true
         } else {
           // Dragged down - collapse
           if (this.showZonePopup) this.isZonePopupExpanded = false
           if (this.showReservationPopup) this.isReservationPopupExpanded = false
+          if (this.showActiveReservationPopup) this.isActiveReservationExpanded = false
+          if (this.showOngoingRidePopup) this.isOngoingRideExpanded = false
+          if (this.showPaymentPopup) this.isPaymentExpanded = false
         }
       }
 
@@ -466,10 +922,6 @@ ID: ${bike.id}`)
     handleGlobalMouseMove(event) {
       if (!this.isDragging || !this.isMouseDragging) return
       this.dragCurrentY = event.clientY
-
-      const dragDistance = this.dragStartY - this.dragCurrentY
-      // Optional: Add visual feedback during drag
-      // You can add transform styles here if needed
     },
 
     handleGlobalMouseUp() {
@@ -485,10 +937,16 @@ ID: ${bike.id}`)
           // Dragged up - expand
           if (this.showZonePopup) this.isZonePopupExpanded = true
           if (this.showReservationPopup) this.isReservationPopupExpanded = true
+          if (this.showActiveReservationPopup) this.isActiveReservationExpanded = true
+          if (this.showOngoingRidePopup) this.isOngoingRideExpanded = true
+          if (this.showPaymentPopup) this.isPaymentExpanded = true
         } else {
           // Dragged down - collapse
           if (this.showZonePopup) this.isZonePopupExpanded = false
           if (this.showReservationPopup) this.isReservationPopupExpanded = false
+          if (this.showActiveReservationPopup) this.isActiveReservationExpanded = false
+          if (this.showOngoingRidePopup) this.isOngoingRideExpanded = false
+          if (this.showPaymentPopup) this.isPaymentExpanded = false
         }
       }
 
@@ -502,12 +960,328 @@ ID: ${bike.id}`)
       this.dragCurrentY = 0
     },
 
-    beginBikeReservation() {
+    async beginBikeReservation() {
       if (this.selectedBike) {
-        alert(`Reservation started for bike: ${this.selectedBike.model} (ID: ${this.selectedBike.id})`)
-        this.closeReservationPopup()
+        const bikeModel = this.selectedBike.model
+        const bikeId = this.selectedBike.id
+
+        try {
+          const response = await api.getActiveReservation()
+          if (response.data) {
+            alert('You already have an active reservation.')
+            this.closeReservationPopup()
+            this.activeReservation = response.data
+            this.showActiveReservationPopup = true
+            this.startReservationTracking()
+            return
+          }
+        } catch (error) {
+          console.log('No active reservation found, proceeding with new reservation')
+        }
+
+        try {
+          console.log('Creating reservation for bike:', bikeId)
+          const reservationResponse = await api.createReservation(bikeId)
+          console.log('Reservation response:', reservationResponse)
+          this.activeReservation = reservationResponse.data
+          this.closeReservationPopup()
+          this.showActiveReservationPopup = true
+          this.startReservationTracking()
+
+          alert(`Reservation created for bike: ${bikeModel}`)
+        } catch (error) {
+          console.error('Full error object:', error)
+          console.error('Error response:', error.response)
+          console.error('Error message:', error.message)
+          console.error('Error status:', error.response?.status)
+          console.error('Error data:', error.response?.data)
+
+          let errorMessage = 'Failed to create reservation. '
+          if (error.response?.data?.detail) {
+            errorMessage += error.response.data.detail
+          } else if (error.response?.data?.title) {
+            errorMessage += error.response.data.title
+          } else if (error.message) {
+            errorMessage += error.message
+          } else {
+            errorMessage += 'Please try again.'
+          }
+
+          alert(errorMessage)
+        }
       }
     },
+
+    async unlockBike() {
+      if (!this.activeReservation) {
+        alert('No active reservation found.')
+        return
+      }
+
+      try {
+        console.log('Starting rental for reservation:', this.activeReservation.id)
+
+        this.costBreakdown.reservationStartCost = parseFloat(this.currentCost)
+
+        const rentalResponse = await api.startRental(this.activeReservation.id)
+        console.log('Rental started:', rentalResponse)
+
+        this.activeRental = rentalResponse.data
+        this.rideStartTime = new Date()
+
+        this.originalZoneId = this.activeRental.startZoneId ||
+          this.activeReservation.zoneId ||
+          (this.selectedZone ? this.selectedZone.id : null)
+
+        this.activeReservation = null
+
+        this.showActiveReservationPopup = false
+        this.showOngoingRidePopup = true
+        this.clearTimers()
+        this.startRideTracking()
+
+        console.log('Bike unlocked, original zone ID:', this.originalZoneId)
+        console.log('Reservation cost at start:', this.costBreakdown.reservationStartCost)
+        alert('Bike unlocked successfully! Your ride has started.')
+
+      } catch (error) {
+        console.error('Error starting rental:', error)
+
+        let errorMessage = 'Failed to unlock bike. '
+        if (error.response?.data?.detail) {
+          errorMessage += error.response.data.detail
+        } else if (error.response?.data?.title) {
+          errorMessage += error.response.data.title
+        } else if (error.message) {
+          errorMessage += error.message
+        } else {
+          errorMessage += 'Please try again.'
+        }
+
+        alert(errorMessage)
+      }
+    },
+
+    async updateRideCost() {
+      if (!this.activeRental) return
+
+      try {
+        const costResponse = await api.getRentalCost(this.activeRental.id)
+        this.currentRideCost = costResponse.data.toFixed(2)
+      } catch (error) {
+        console.error('Error updating ride cost:', error)
+      }
+    },
+
+    updateRideTime() {
+      if (!this.rideStartTime) return
+
+      const now = new Date()
+      const elapsedMs = now.getTime() - this.rideStartTime.getTime()
+
+      const hours = Math.floor(elapsedMs / (1000 * 60 * 60))
+      const minutes = Math.floor((elapsedMs % (1000 * 60 * 60)) / (1000 * 60))
+      const seconds = Math.floor((elapsedMs % (1000 * 60)) / 1000)
+
+      if (hours > 0) {
+        this.rideTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+      } else {
+        this.rideTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+      }
+
+      if (seconds === 0 && minutes > this.lastRideMinute) {
+        this.lastRideMinute = minutes
+        console.log(`Ride time hit ${minutes} minutes, fetching updated cost...`)
+        this.updateRideCost()
+      }
+    },
+
+    async lockBike() {
+      if (!this.activeRental) return
+
+      try {
+        await api.lockBike(this.activeRental.id)
+        this.isBikeLocked = true
+        alert('Bike locked successfully!')
+      } catch (error) {
+        console.error('Error locking bike:', error)
+        alert('Failed to lock bike. Please try again.')
+      }
+    },
+
+    async unlockBikeRental() {
+      if (!this.activeRental) return
+
+      try {
+        await api.unlockBike(this.activeRental.id)
+        this.isBikeLocked = false
+        alert('Bike unlocked successfully!')
+      } catch (error) {
+        console.error('Error unlocking bike:', error)
+        alert('Failed to unlock bike. Please try again.')
+      }
+    },
+
+    async finishRide() {
+      if (!this.activeRental) {
+        alert('No active rental found.')
+        return
+      }
+
+      if (!this.originalZoneId) {
+        alert('Error: Original zone information not found. Please contact support.')
+        return
+      }
+
+      const confirmed = confirm('Are you sure you want to finish your ride? This will end the rental and calculate the final cost.')
+      if (!confirmed) return
+
+      try {
+        console.log('Ending rental:', this.activeRental.id, 'with zone:', this.originalZoneId)
+        const endResponse = await api.endRental(this.activeRental.id, this.originalZoneId)
+        console.log('Rental ended:', endResponse)
+
+        this.finalRideCost = this.currentRideCost
+        this.finalRideTime = this.rideTime
+
+        await this.calculateCostBreakdownFromRental()
+
+        this.activeRental = null
+
+        this.showOngoingRidePopup = false
+        this.showPaymentPopup = true
+        this.clearTimers()
+
+        alert('Ride finished! Please proceed with payment.')
+
+      } catch (error) {
+        console.error('Error ending rental:', error)
+
+        let errorMessage = 'Failed to finish ride. '
+        if (error.response?.data?.detail) {
+          errorMessage += error.response.data.detail
+        } else if (error.response?.data?.title) {
+          errorMessage += error.response.data.title
+        } else if (error.message) {
+          errorMessage += error.message
+        } else {
+          errorMessage += 'Please try again.'
+        }
+
+        alert(errorMessage)
+      }
+    },
+
+    async calculateCostBreakdownFromRental() {
+      const totalCost = parseFloat(this.finalRideCost)
+      let reservationCost = 0
+
+      if (this.activeRental && this.activeRental.reservationId) {
+        try {
+          const reservationCostResponse = await api.getReservationCost(this.activeRental.reservationId)
+          reservationCost = reservationCostResponse.data
+
+          console.log('Final reservation cost:', reservationCost)
+        } catch (error) {
+          console.error('Error fetching final reservation cost:', error)
+          reservationCost = this.costBreakdown.reservationStartCost || 0
+        }
+      } else {
+        reservationCost = this.costBreakdown.reservationStartCost || 0
+      }
+
+      const rideCost = Math.max(0, totalCost - reservationCost)
+
+      this.costBreakdown = {
+        showBreakdown: true,
+        reservationCost: Math.max(0, reservationCost),
+        rideCost: rideCost,
+        reservationStartCost: reservationCost
+      }
+
+      console.log('Cost breakdown calculated from rental:', {
+        total: totalCost,
+        reservation: this.costBreakdown.reservationCost,
+        ride: this.costBreakdown.rideCost,
+        reservationId: this.activeRental?.reservationId
+      })
+    },
+
+    calculateCostBreakdown() {
+      const totalCost = parseFloat(this.finalRideCost)
+      const reservationCost = this.costBreakdown.reservationStartCost
+      const rideCost = totalCost - reservationCost
+
+      this.costBreakdown = {
+        showBreakdown: true,
+        reservationCost: Math.max(0, reservationCost),
+        rideCost: Math.max(0, rideCost),
+        reservationStartCost: reservationCost
+      }
+
+      console.log('Cost breakdown calculated:', {
+        total: totalCost,
+        reservation: this.costBreakdown.reservationCost,
+        ride: this.costBreakdown.rideCost
+      })
+    },
+
+    togglePaymentExpanded() {
+      this.isPaymentExpanded = !this.isPaymentExpanded
+    },
+
+    closePaymentPopup() {
+      this.showPaymentPopup = false
+      this.isPaymentExpanded = false
+
+      this.activeRental = null
+      this.originalZoneId = null
+      this.currentRideCost = '0.00'
+      this.rideTime = '00:00'
+      this.rideStartTime = null
+      this.isBikeLocked = false
+      this.lastRideMinute = -1
+      this.finalRideCost = '0.00'
+      this.finalRideTime = '00:00'
+
+      this.costBreakdown = {
+        showBreakdown: false,
+        reservationCost: 0,
+        rideCost: 0,
+        reservationStartCost: 0
+      }
+
+      if (this.isLoggedIn) {
+        this.fetchAndDisplayZones()
+      }
+    },
+
+    payForRide() {
+      alert(`Payment of ${this.finalRideCost}€ processed successfully! Thank you for using our service.`)
+      this.closePaymentPopup()
+    },
+
+    startRideTracking() {
+      if (!this.activeRental) return
+
+      // Initially assume bike is unlocked when ride starts
+      this.isBikeLocked = false
+      this.lastRideMinute = -1
+
+      // Update ride time every second
+      this.rideTimer = setInterval(() => {
+        this.updateRideTime()
+      }, 1000)
+
+      // Update cost every 30 seconds
+      this.costUpdateTimer = setInterval(async () => {
+        await this.updateRideCost()
+      }, 30000)
+
+      // Initial cost update
+      this.updateRideCost()
+    },
+
   },
 }
 </script>
@@ -864,6 +1638,275 @@ button:hover {
 .begin-reservation-btn .icon {
   margin-right: 8px;
   font-size: 16px;
+}
+
+.reservation-status {
+  margin-bottom: 20px;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.status-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 16px;
+}
+
+.status-item:last-child {
+  margin-bottom: 0;
+}
+
+.status-item span:first-child {
+  color: #666;
+}
+
+.cost {
+  font-weight: 600;
+  color: #e91e63;
+  font-size: 18px;
+}
+
+.time-left {
+  font-weight: 600;
+  color: #00897B;
+  font-size: 18px;
+}
+
+.paid-status {
+  font-weight: 600;
+  color: #ff9800;
+}
+
+.reservation-info {
+  background-color: #e3f2fd;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.info-text {
+  margin: 0;
+  color: #1976d2;
+  font-size: 14px;
+  text-align: center;
+}
+
+.action-buttons {
+  margin: 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.unlock-bike-btn {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 16px 20px;
+  width: 100%;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.unlock-bike-btn:hover {
+  background-color: #45a049;
+}
+
+.cancel-reservation-btn {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 16px 20px;
+  width: 100%;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.cancel-reservation-btn:hover {
+  background-color: #d32f2f;
+}
+
+.unlock-icon,
+.cancel-icon {
+  margin-right: 8px;
+  font-size: 20px;
+}
+
+.lock-status {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.lock-status.locked {
+  color: #f44336;
+}
+
+.lock-status.unlocked {
+  color: #4CAF50;
+}
+
+.lock-bike-btn {
+  background-color: #ff9800;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 16px 20px;
+  width: 100%;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.lock-bike-btn:hover {
+  background-color: #f57c00;
+}
+
+.lock-icon {
+  margin-right: 8px;
+  font-size: 20px;
+}
+
+.finish-ride-btn {
+  background-color: #ff5722;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 16px 20px;
+  width: 100%;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.finish-ride-btn:hover {
+  background-color: #e64a19;
+}
+
+.stop-icon {
+  margin-right: 8px;
+  font-size: 20px;
+}
+
+.pay-btn {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 16px 20px;
+  width: 100%;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.pay-btn:hover {
+  background-color: #45a049;
+}
+
+.pay-icon {
+  margin-right: 8px;
+  font-size: 20px;
+}
+
+.ride-status {
+  margin-bottom: 20px;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.payment-status {
+  margin-bottom: 20px;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.cost-breakdown {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e9ecef;
+}
+
+.breakdown-header {
+  font-weight: 600;
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.breakdown-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.breakdown-item:last-child {
+  margin-bottom: 0;
+}
+
+.breakdown-item span:first-child {
+  color: #666;
+}
+
+.breakdown-cost {
+  font-weight: 500;
+  color: #333;
+}
+
+.breakdown-item.total-line {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #dee2e6;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.breakdown-total {
+  color: #e91e63;
+  font-weight: 600;
+}
+
+.report-problem-link {
+  color: #f44336;
+  text-align: center;
+  font-size: 16px;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.report-problem-link:hover {
+  color: #d32f2f;
 }
 
 @keyframes fadeIn {
