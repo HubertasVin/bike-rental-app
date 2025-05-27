@@ -13,25 +13,30 @@ namespace BikeRentalApp.Infrastructure.Logging
         public T Decorated { get; set; } = default!;
         public ILogger<T> Logger { get; set; } = default!;
         public IHttpContextAccessor HttpContextAccessor { get; set; } = default!;
+        public ILoggingToggleService ToggleService { get; set; } = default!;
 
         protected override object Invoke(MethodInfo targetMethod, object[] args)
         {
-            var user = HttpContextAccessor.HttpContext?.User;
-            var userName = user?.Identity?.Name ?? "<anonymous>";
-            var roles =
-                user?.Claims.Where(c => c.Type == ClaimTypes.Role)
-                    .Select(c => c.Value)
-                    .DefaultIfEmpty("<none>")
-                    .Aggregate((a, b) => $"{a},{b}") ?? "<none>";
+            Console.WriteLine($"Logging enabled: {ToggleService.Enabled}");
+            if (ToggleService.Enabled)
+            {
+                var user = HttpContextAccessor.HttpContext?.User;
+                var userName = user?.Identity?.Name ?? "<anonymous>";
+                var roles =
+                    user?.Claims.Where(c => c.Type == ClaimTypes.Role)
+                        .Select(c => c.Value)
+                        .DefaultIfEmpty("<none>")
+                        .Aggregate((a, b) => $"{a},{b}") ?? "<none>";
 
-            Logger.LogInformation(
-                "User={User}; Roles={Roles}; Time={Time:u}; Method={Type}.{Method}",
-                userName,
-                roles,
-                DateTime.UtcNow,
-                typeof(T).Name,
-                targetMethod.Name
-            );
+                Logger.LogInformation(
+                    "User={User}; Roles={Roles}; Time={Time:u}; Method={Type}.{Method}",
+                    userName,
+                    roles,
+                    DateTime.UtcNow,
+                    typeof(T).Name,
+                    targetMethod.Name
+                );
+            }
 
             object? result;
             try

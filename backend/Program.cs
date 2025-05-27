@@ -1,3 +1,6 @@
+// Program.cs
+using System;
+using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Text;
@@ -7,12 +10,20 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using Serilog.Core;
+using Serilog.Events;
 
+// 1) Create a Serilog level switch that we can mutate at runtime
+var levelSwitch = new LoggingLevelSwitch(LogEventLevel.Information);
+
+// 2) Configure Serilog to use that switch
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Information()
+    .MinimumLevel.ControlledBy(levelSwitch)
     .WriteTo.Console()
     .WriteTo.File(
         path: "Logs/log-.txt",
@@ -23,8 +34,13 @@ Log.Logger = new LoggerConfiguration()
 
 var builder = WebApplication.CreateBuilder(args);
 
+// 3) Tell the generic host to use Serilog
 builder.Host.UseSerilog();
 
+// 4) Register the level switch in DI so controllers/endpoints can change it
+builder.Services.AddSingleton(levelSwitch);
+
+// 5) Authentication & JWT setup
 builder
     .Services.AddAuthentication(options =>
     {
@@ -51,43 +67,48 @@ builder
         };
     });
 
-builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
-builder.Logging.AddDebug();
-
-// should make [Authorize] implicit
+// 6) Make [Authorize] implicit on all controllers
 builder.Services.AddControllers(options =>
 {
     var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
-
     options.Filters.Add(new AuthorizeFilter(policy));
 });
 
-// Add database services
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+// 7) EF Core DbContext (scoped by default)
+builder.Services.AddDbContext<ApplicationDbContext>(opts =>
+    opts.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
-
+// 8) Auto-scan your Services & Repos as scoped
 builder.Services.AddScoped<JwtService>();
-builder.Services.AddControllers();
+builder.Services.Scan(scan =>
+    scan.FromAssemblies(Assembly.GetExecutingAssembly())
+        .AddClasses(classes =>
+            classes.Where(t => t.Name.EndsWith("Service") || t.Name.EndsWith("Repository"))
+        )
+        .AsImplementedInterfaces()
+        .WithScopedLifetime()
+);
+builder.Services.AddSingleton<ILoggingToggleService, LoggingToggleService>();
+
+// 9) Enable AOP logging on all your I*Service
+builder.Services.AddServiceLogging();
+
+// 10) Swagger / OpenAPI
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen(options =>
 {
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     options.IncludeXmlComments(xmlPath);
 
-    // Update JWT Bearer configuration to add Bearer prefix automatically
     options.AddSecurityDefinition(
         "Bearer",
         new OpenApiSecurityScheme
         {
             Description =
-                "JWT Authorization header. Just enter your token, the 'Bearer' prefix will be added automatically.",
+                "JWT Authorization header. Enter your token; the 'Bearer' prefix is added automatically.",
             Name = "Authorization",
             In = ParameterLocation.Header,
             Type = SecuritySchemeType.Http,
@@ -95,7 +116,6 @@ builder.Services.AddSwaggerGen(options =>
             BearerFormat = "JWT",
         }
     );
-
     options.AddSecurityRequirement(
         new OpenApiSecurityRequirement
         {
@@ -114,52 +134,43 @@ builder.Services.AddSwaggerGen(options =>
     );
 });
 
-builder.Services.Scan(scan =>
-    scan.FromAssemblies(Assembly.GetExecutingAssembly())
-        .AddClasses(classes =>
-            classes.Where(t => t.Name.EndsWith("Repository") || t.Name.EndsWith("Service"))
-        )
-        .AsImplementedInterfaces()
-        .WithScopedLifetime()
-);
-
-builder.Services.AddServiceLogging();
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(
+// 11) CORS
+builder.Services.AddCors(o =>
+    o.AddPolicy(
         "AllowSpecificOrigin",
         policy =>
         {
             policy.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod();
         }
-    );
-});
+    )
+);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// 12) Development-only middleware
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.UseSwagger();
     app.UseSwaggerUI();
 
-    // Apply migrations in development
-    using (var scope = app.Services.CreateScope())
-    {
-        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        dbContext.Database.Migrate();
-    }
+    // Apply EF migrations on startup in DEV
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    dbContext.Database.Migrate();
 }
 
+// 13) Standard middleware
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseHttpsRedirection();
+app.UseCors("AllowSpecificOrigin");
+
+// 14) Map controllers (including your LoggingController if you added one)
 app.MapControllers();
 
-app.UseHttpsRedirection();
-
+// 15) Example minimal endpoint
 var summaries = new[]
 {
     "Freezing",
@@ -173,7 +184,6 @@ var summaries = new[]
     "Sweltering",
     "Scorching",
 };
-
 app.MapGet(
         "/weatherforecast",
         () =>
@@ -191,9 +201,10 @@ app.MapGet(
     )
     .WithName("GetWeatherForecast");
 
-app.UseCors("AllowSpecificOrigin");
+// 16) Run the app
 app.Run();
 
+// record kept at bottom
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);

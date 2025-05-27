@@ -1,10 +1,5 @@
-using System;
-using System.Linq;
 using System.Reflection;
 using BikeRentalApp.Infrastructure.Logging;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace BikeRentalApp.Infrastructure.Extensions
 {
@@ -36,24 +31,28 @@ namespace BikeRentalApp.Infrastructure.Extensions
                     svcType,
                     sp =>
                     {
+                        var toggleService = sp.GetRequiredService<ILoggingToggleService>();
+
                         var decorated = sp.GetRequiredService(implType);
                         var accessor = sp.GetRequiredService<IHttpContextAccessor>();
 
-                        // ILogger<T>
+                        // **pull the generic ILogger<T>**
                         var loggerType = typeof(ILogger<>).MakeGenericType(svcType);
                         var loggerInstance = sp.GetRequiredService(loggerType);
 
-                        // create proxy
                         var proxy = DispatchProxy.Create(
                             svcType,
                             typeof(LoggingProxy<>).MakeGenericType(svcType)
                         );
-
-                        // set properties via reflection
                         var proxyType = proxy.GetType();
+
                         proxyType.GetProperty("Decorated")!.SetValue(proxy, decorated);
+
                         proxyType.GetProperty("Logger")!.SetValue(proxy, loggerInstance);
+
                         proxyType.GetProperty("HttpContextAccessor")!.SetValue(proxy, accessor);
+
+                        proxyType.GetProperty("ToggleService")!.SetValue(proxy, toggleService);
 
                         return proxy;
                     }
