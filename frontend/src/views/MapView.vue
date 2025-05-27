@@ -285,7 +285,7 @@
             <div class="breakdown-item total-line">
               <span>Total:</span>
               <span class="breakdown-total">{{ (costBreakdown.reservationCost + costBreakdown.rideCost).toFixed(2)
-                }}€</span>
+              }}€</span>
             </div>
           </div>
         </div>
@@ -1048,7 +1048,7 @@ ID: ${bike.id}`)
         console.log('Report created successfully:', response.data)
 
         this.closeProblemModal()
-        this.showToast(`Problem reported: ${this.selectedProblemType}. Our team will investigate this issue.`, 'success')
+        this.showToast(`Problem reported! Our team will investigate this issue.`, 'success')
       } catch (error) {
         console.error('Error creating report:', error)
 
