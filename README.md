@@ -4,8 +4,6 @@ To run the backend, run these commands:
 cd backend
 dotnet add package Swashbuckle.AspNetCore
 dotnet add package Scrutor
-dotnet add package Serilog.AspNetCore
-dotnet add package Serilog.Sinks.File
 ```
 
 To run the frontend, run these commands:
@@ -18,8 +16,9 @@ npm run dev
 
 ## Techninės užduotys:
 1. Memory management
-   a. Scope: Program.cs:
-    ```csharp
+
+Scope: Program.cs:
+```csharp
 builder.Services.Scan(scan =>
     scan.FromAssemblies(Assembly.GetExecutingAssembly())
         .AddClasses(classes =>
@@ -28,13 +27,14 @@ builder.Services.Scan(scan =>
         .AsImplementedInterfaces()
         .WithScopedLifetime()
 );
-    ```
-    b. SessionScoped: Niekur nenaudojamas
+```
+
+SessionScoped: Niekur nenaudojamas (nėra niekur įjungiami komponentai su AddSession() metodu Program.cs faile).
 
 
 2. Logging
-   a. backend/Logs/log-20250526.txt:
-   ```
+backend/Logs/log-20250526.txt:
+```
 2025-05-26 23:30:16.148 +03:00 [INF] User=string; Roles=User; Time=2025-05-26 20:30:16Z; Method=IBikeService.GetAllBikesAsync
-   ```
-   b. To toggle logging, call http://localhost:5000/api/logging?enabled=false or with true.
+```
+To toggle logging, call http://localhost:5000/api/logging?enabled=false or with true.
