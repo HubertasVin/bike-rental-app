@@ -124,6 +124,39 @@ const reportProblem = () => {
   return Promise.resolve({ data: 'Problem reported successfully' })
 }
 
+const createReport = (reportData: {
+  type: string
+  description: string
+  bikeId?: string
+  rentalId?: string
+}) => {
+  return apiClient.post('/api/Report', reportData)
+}
+
+const getAllReports = () => {
+  return apiClient.get('/api/Report')
+}
+
+const getReportById = (id: string) => {
+  return apiClient.get(`/api/Report/${id}`)
+}
+
+const getReportsByBikeId = (bikeId: string) => {
+  return apiClient.get(`/api/Report/bike/${bikeId}`)
+}
+
+const getReportsByUserId = (userId: string) => {
+  return apiClient.get(`/api/Report/user/${userId}`)
+}
+
+const updateReport = (id: string, reportData: any) => {
+  return apiClient.put(`/api/Report/${id}`, reportData)
+}
+
+const deleteReport = (id: string) => {
+  return apiClient.delete(`/api/Report/${id}`)
+}
+
 export const api = {
   client: apiClient,
   fetch,
@@ -153,4 +186,11 @@ export const api = {
   getActiveRental,
 
   reportProblem,
+  createReport,
+  getAllReports,
+  getReportById,
+  getReportsByBikeId,
+  getReportsByUserId,
+  updateReport,
+  deleteReport,
 }
