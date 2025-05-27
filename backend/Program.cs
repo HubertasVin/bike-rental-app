@@ -4,8 +4,12 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Text;
+using BikeRentalApp.Application.Services.Interfaces;
+using BikeRentalApp.Application.Services.Pricing;
 using BikeRentalApp.Data;
 using BikeRentalApp.Infrastructure.Extensions;
+using BikeRentalApp.Repositories.Decorators;
+using BikeRentalApp.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
@@ -79,7 +83,18 @@ builder.Services.AddDbContext<ApplicationDbContext>(opts =>
     opts.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
-// 8) Auto-scan your Services & Repos as scoped
+// 8) Register pricing strategy (can be configured via appsettings)
+var pricingStrategy = builder.Configuration.GetValue<string>("PricingStrategy", "Standard");
+if (pricingStrategy == "Discounted")
+{
+    builder.Services.AddScoped<IPricingStrategy, DiscountedPricingStrategy>();
+}
+else
+{
+    builder.Services.AddScoped<IPricingStrategy, StandardPricingStrategy>();
+}
+
+// 9) Auto-scan your Services & Repos as scoped
 builder.Services.AddScoped<JwtService>();
 builder.Services.Scan(scan =>
     scan.FromAssemblies(Assembly.GetExecutingAssembly())
@@ -89,12 +104,16 @@ builder.Services.Scan(scan =>
         .AsImplementedInterfaces()
         .WithScopedLifetime()
 );
+
+// 10) Decorator for RentalRepository
+builder.Services.Decorate<IRentalRepository, LoggingRentalRepositoryDecorator>();
+
 builder.Services.AddSingleton<ILoggingToggleService, LoggingToggleService>();
 
-// 9) Enable AOP logging on all your I*Service
+// 11) Enable AOP logging on all your I*Service
 builder.Services.AddServiceLogging();
 
-// 10) Swagger / OpenAPI
+// 12) Swagger / OpenAPI
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen(options =>
@@ -134,7 +153,7 @@ builder.Services.AddSwaggerGen(options =>
     );
 });
 
-// 11) CORS
+// 13) CORS
 builder.Services.AddCors(o =>
     o.AddPolicy(
         "AllowSpecificOrigin",
@@ -147,7 +166,7 @@ builder.Services.AddCors(o =>
 
 var app = builder.Build();
 
-// 12) Development-only middleware
+// 14) Development-only middleware
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -160,17 +179,17 @@ if (app.Environment.IsDevelopment())
     dbContext.Database.Migrate();
 }
 
-// 13) Standard middleware
+// 15) Standard middleware
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseHttpsRedirection();
 app.UseCors("AllowSpecificOrigin");
 
-// 14) Map controllers (including your LoggingController if you added one)
+// 16) Map controllers (including your LoggingController if you added one)
 app.MapControllers();
 
-// 15) Example minimal endpoint
+// 17) Example minimal endpoint
 var summaries = new[]
 {
     "Freezing",
@@ -201,7 +220,7 @@ app.MapGet(
     )
     .WithName("GetWeatherForecast");
 
-// 16) Run the app
+// 18) Run the app
 app.Run();
 
 // record kept at bottom

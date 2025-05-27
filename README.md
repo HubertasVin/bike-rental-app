@@ -82,3 +82,63 @@ public async Task<bool> DeleteAsync(Guid id)
 }
 ```
 Kodas efektyvesnis, nes naudoja `ExecuteDeleteAsync`, kuris leidžia ištrinti įrašus tiesiogiai iš duomenų bazės, be papildomo objekto gavimo ir ištrynimo.
+
+4. Extensibility/Glass-box extensibility
+
+### Alternative
+
+Scope: StandardPricingStrategy.cs:
+```
+using BikeRentalApp.Application.Services.Interfaces;
+
+namespace BikeRentalApp.Application.Services.Pricing;
+
+public class StandardPricingStrategy : IPricingStrategy
+{
+    public string Name => "Standard";
+
+    public decimal CalculatePrice(decimal basePrice, double durationMinutes)
+    {
+        return (decimal)Math.Ceiling(durationMinutes) * basePrice;
+    }
+}
+```
+
+Scope: DiscountedPricingStrategy.cs:
+```
+using BikeRentalApp.Application.Services.Interfaces;
+
+namespace BikeRentalApp.Application.Services.Pricing;
+
+public class DiscountedPricingStrategy : IPricingStrategy
+{
+    public string Name => "Discounted";
+
+    public decimal CalculatePrice(decimal basePrice, double durationMinutes)
+    {
+        var standardPrice = (decimal)Math.Ceiling(durationMinutes) * basePrice;
+        // 50% discount
+        return standardPrice * 0.5m;
+    }
+}
+```
+
+Scope: Program.cs:
+```
+var pricingStrategy = builder.Configuration.GetValue<string>("PricingStrategy", "Standard");
+if (pricingStrategy == "Discounted")
+{
+    builder.Services.AddScoped<IPricingStrategy, DiscountedPricingStrategy>();
+}
+else
+{
+    builder.Services.AddScoped<IPricingStrategy, StandardPricingStrategy>();
+}
+```
+
+### Decorator
+
+Scope: Program.cs:
+```
+builder.Services.Decorate<IRentalRepository, LoggingRentalRepositoryDecorator>();
+```

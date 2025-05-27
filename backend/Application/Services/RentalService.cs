@@ -12,18 +12,21 @@ public class RentalService : IRentalService
     private readonly IBikeRepository _bikeRepository;
     private readonly IReservationRepository _reservationRepository;
     private readonly IZoneRepository _zoneRepository;
+    private readonly IPricingStrategy _pricingStrategy;
 
     public RentalService(
         IRentalRepository rentalRepository,
         IBikeRepository bikeRepository,
         IReservationRepository reservationRepository,
-        IZoneRepository zoneRepository
+        IZoneRepository zoneRepository,
+        IPricingStrategy pricingStrategy
     )
     {
         _rentalRepository = rentalRepository;
         _bikeRepository = bikeRepository;
         _reservationRepository = reservationRepository;
         _zoneRepository = zoneRepository;
+        _pricingStrategy = pricingStrategy;
     }
 
     public async Task<RentalDTO?> CreateRentalFromReservationAsync(Guid userId, Guid reservationId)
@@ -233,7 +236,7 @@ public class RentalService : IRentalService
             ? rental.EndTime.Value - rental.StartTime
             : DateTime.UtcNow - rental.StartTime;
 
-        return (decimal)Math.Ceiling(duration.TotalMinutes) * bike.PricePerMinute;
+        return _pricingStrategy.CalculatePrice(bike.PricePerMinute, duration.TotalMinutes);
     }
 
     public async Task<bool> IsInAllowedZoneAsync(Guid rentalId, Guid zoneId)

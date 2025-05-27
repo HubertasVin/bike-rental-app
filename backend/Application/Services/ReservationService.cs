@@ -11,14 +11,17 @@ public class ReservationService : IReservationService
     private readonly IReservationRepository _reservationRepository;
     private readonly IBikeRepository _bikeRepository;
     private readonly TimeSpan _freeReservationTime = TimeSpan.FromMinutes(10);
+    private readonly IPricingStrategy _pricingStrategy;
 
     public ReservationService(
         IReservationRepository reservationRepository,
-        IBikeRepository bikeRepository
+        IBikeRepository bikeRepository,
+        IPricingStrategy pricingStrategy
     )
     {
         _reservationRepository = reservationRepository;
         _bikeRepository = bikeRepository;
+        _pricingStrategy = pricingStrategy;
     }
 
     public async Task<ReservationDTO?> CreateReservationAsync(
@@ -167,7 +170,7 @@ public class ReservationService : IReservationService
             return 0;
         }
 
-        return (decimal)Math.Ceiling(chargeDuration.TotalMinutes) * bike.PricePerMinute;
+        return _pricingStrategy.CalculatePrice(bike.PricePerMinute, chargeDuration.TotalMinutes);
     }
 
     private static ReservationDTO MapToDto(Reservation reservation)
