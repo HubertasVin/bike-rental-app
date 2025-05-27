@@ -12,10 +12,7 @@ public class ReportRepository : Repository<Report>, IReportRepository
 
     public async Task<IEnumerable<Report>> GetAllAsync()
     {
-        return await GetAll()
-            .Include(r => r.Bike)
-            .Include(r => r.User)
-            .ToListAsync();
+        return await GetAll().Include(r => r.Bike).Include(r => r.User).ToListAsync();
     }
 
     public new async Task<Report?> GetByIdAsync(Guid id)
@@ -48,15 +45,19 @@ public class ReportRepository : Repository<Report>, IReportRepository
 
     public async Task<bool> DeleteAsync(Guid id)
     {
-        var report = await GetByIdAsync(id);
-        if (report == null)
-        {
-            return false;
-        }
+        var count = await _context.Reports.Where(r => r.Id == id).ExecuteDeleteAsync();
+        return count > 0;
 
-        await DeleteAsync(report);
-        await SaveChangesAsync();
-        return true;
+        // Original code, that was improved
+        // var report = await GetByIdAsync(id);
+        // if (report == null)
+        // {
+        //     return false;
+        // }
+
+        // await DeleteAsync(report);
+        // await SaveChangesAsync();
+        // return true;
     }
 
     public async Task<IEnumerable<Report>> GetReportsByBikeAsync(Guid bikeId)

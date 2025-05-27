@@ -42,14 +42,7 @@ public class ZoneRepository : Repository<Zone>, IZoneRepository
 
     public async Task<bool> DeleteAsync(Guid id)
     {
-        var zone = await GetByIdAsync(id);
-        if (zone == null)
-        {
-            return false;
-        }
-
-        await DeleteAsync(zone);
-        await SaveChangesAsync();
-        return true;
+        var count = await _context.Bikes.Where(z => z.Id == id).ExecuteDeleteAsync();
+        return count > 0;
     }
 }

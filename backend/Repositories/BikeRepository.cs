@@ -43,15 +43,8 @@ public class BikeRepository : Repository<Bike>, IBikeRepository
 
     public async Task<bool> DeleteAsync(Guid id)
     {
-        var bike = await GetByIdAsync(id);
-        if (bike == null)
-        {
-            return false;
-        }
-
-        await DeleteAsync(bike);
-        await SaveChangesAsync();
-        return true;
+        var count = await _context.Bikes.Where(b => b.Id == id).ExecuteDeleteAsync();
+        return count > 0;
     }
 
     public async Task<IEnumerable<Bike>> GetAvailableBikesAsync()
