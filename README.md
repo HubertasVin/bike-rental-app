@@ -37,7 +37,7 @@ backend/Logs/log-20250526.txt:
 ```
 2025-05-26 23:30:16.148 +03:00 [INF] User=string; Roles=User; Time=2025-05-26 20:30:16Z; Method=IBikeService.GetAllBikesAsync
 ```
-Faile 
+Faile LoggingProxy.cs:
 ```csharp
 if (ToggleService.Enabled)
 {
