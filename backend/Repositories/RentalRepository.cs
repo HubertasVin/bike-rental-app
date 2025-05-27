@@ -52,15 +52,8 @@ public class RentalRepository : Repository<Rental>, IRentalRepository
 
     public async Task<bool> DeleteAsync(Guid id)
     {
-        var rental = await GetByIdAsync(id);
-        if (rental == null)
-        {
-            return false;
-        }
-
-        await DeleteAsync(rental);
-        await SaveChangesAsync();
-        return true;
+        var count = await _context.Zones.Where(z => z.Id == id).ExecuteDeleteAsync();
+        return count > 0;
     }
 
     public async Task<Rental?> GetActiveRentalForUserAsync(Guid userId)
