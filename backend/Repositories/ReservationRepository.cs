@@ -45,15 +45,8 @@ public class ReservationRepository : Repository<Reservation>, IReservationReposi
 
     public async Task<bool> DeleteAsync(Guid id)
     {
-        var reservation = await GetByIdAsync(id);
-        if (reservation == null)
-        {
-            return false;
-        }
-
-        await DeleteAsync(reservation);
-        await SaveChangesAsync();
-        return true;
+        var count = await _context.Reservations.Where(r => r.Id == id).ExecuteDeleteAsync();
+        return count > 0;
     }
 
     public async Task<Reservation?> GetActiveReservationForUserAsync(Guid userId)

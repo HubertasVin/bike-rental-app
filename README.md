@@ -60,3 +60,25 @@ if (ToggleService.Enabled)
 }
 ```
 Kad įjungti/išjungti žurnalizavimą, iškvieskite http://localhost:5000/api/logging?enabled=false arba su true.
+
+3. Data mapper efektyvi implementacija
+Faile ReportRepository.cs:
+```csharp
+public async Task<bool> DeleteAsync(Guid id)
+{
+    var count = await _context.Reports.Where(r => r.Id == id).ExecuteDeleteAsync();
+    return count > 0;
+
+    // Originalus kodas, kuris buvo pakeistas į efektyvesnį:
+    // var report = await GetByIdAsync(id);
+    // if (report == null)
+    // {
+    //     return false;
+    // }
+
+    // await DeleteAsync(report);
+    // await SaveChangesAsync();
+    // return true;
+}
+```
+Kodas efektyvesnis, nes naudoja `ExecuteDeleteAsync`, kuris leidžia ištrinti įrašus tiesiogiai iš duomenų bazės, be papildomo objekto gavimo ir ištrynimo.
