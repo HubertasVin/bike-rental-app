@@ -1912,7 +1912,7 @@ button:hover {
 
 .reservation-details {
   margin-bottom: 30px;
-  background-color: #f8f9fa;
+  /* background-color: #f8f9fa; */
   border-radius: 12px;
   padding: 16px;
 }
@@ -1921,7 +1921,12 @@ button:hover {
   display: flex;
   justify-content: space-between;
   margin-bottom: 12px;
-  font-size: 16px;
+
+  font-family: Inter, sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: -0.02em;
 }
 
 .reservation-detail:last-child {
@@ -1929,12 +1934,11 @@ button:hover {
 }
 
 .reservation-detail span:first-child {
-  color: #666;
+  color: #272727;
 }
 
 .reservation-detail span:last-child {
-  font-weight: 600;
-  color: #333;
+  color: rgba(39, 39, 39, 0.6);
 }
 
 .begin-reservation-btn {
@@ -1944,8 +1948,11 @@ button:hover {
   border-radius: 12px;
   padding: 16px 20px;
   width: 100%;
+  font-family: Inter, sans-serif;
   font-size: 18px;
   font-weight: 600;
+  line-height: 20px;
+  letter-spacing: -0.02em;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1964,7 +1971,6 @@ button:hover {
 
 .reservation-status {
   margin-bottom: 20px;
-  background-color: #f8f9fa;
   border-radius: 12px;
   padding: 16px;
 }
@@ -2029,8 +2035,11 @@ button:hover {
   border-radius: 12px;
   padding: 16px 20px;
   width: 100%;
+  font-family: Inter, sans-serif;
   font-size: 18px;
   font-weight: 600;
+  line-height: 20px;
+  letter-spacing: -0.02em;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -2049,8 +2058,11 @@ button:hover {
   border-radius: 12px;
   padding: 16px 20px;
   width: 100%;
+  font-family: Inter, sans-serif;
   font-size: 18px;
   font-weight: 600;
+  line-height: 20px;
+  letter-spacing: -0.02em;
   cursor: pointer;
   display: flex;
   align-items: center;
