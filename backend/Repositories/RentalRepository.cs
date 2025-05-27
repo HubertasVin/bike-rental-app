@@ -52,7 +52,7 @@ public class RentalRepository : Repository<Rental>, IRentalRepository
 
     public async Task<bool> DeleteAsync(Guid id)
     {
-        var count = await _context.Zones.Where(z => z.Id == id).ExecuteDeleteAsync();
+        var count = await _context.Rentals.Where(z => z.Id == id).ExecuteDeleteAsync();
         return count > 0;
     }
 
