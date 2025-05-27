@@ -8,6 +8,40 @@
       </svg>
     </div>
 
+    <div class="search-container">
+      <div class="search-input-wrapper">
+        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20"
+          height="20">
+          <path
+            d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+        </svg>
+        <input v-model="searchQuery" @input="onSearchInput" @keydown.enter="performSearch"
+          @focus="showSearchResults = true" @blur="hideSearchResults" type="text" class="search-input"
+          placeholder="Search for a street..." />
+        <button v-if="searchQuery" @click="clearSearch" class="clear-search-btn" type="button">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+            <path
+              d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Search Results Dropdown -->
+      <div v-if="showSearchResults && searchResults.length > 0" class="search-results">
+        <div v-for="(result, index) in searchResults" :key="index" @mousedown="selectSearchResult(result)"
+          class="search-result-item">
+          <div class="result-name">{{ result.display_name }}</div>
+          <div class="result-type">{{ result.type }}</div>
+        </div>
+      </div>
+
+      <!-- Loading indicator -->
+      <div v-if="isSearching" class="search-loading">
+        <div class="loading-spinner"></div>
+        <span>Searching...</span>
+      </div>
+    </div>
+
     <!-- Toast Notifications -->
     <div v-if="toastMessage" class="toast-notification" :class="toastType">
       <div class="toast-content">
@@ -285,7 +319,7 @@
             <div class="breakdown-item total-line">
               <span>Total:</span>
               <span class="breakdown-total">{{ (costBreakdown.reservationCost + costBreakdown.rideCost).toFixed(2)
-              }}€</span>
+                }}€</span>
             </div>
           </div>
         </div>
@@ -412,6 +446,13 @@ export default {
       apiRentalCost: null,
       apiRideCost: null,
       apiReservationCost: null,
+
+      searchQuery: '',
+      searchResults: [],
+      showSearchResults: false,
+      isSearching: false,
+      searchTimeout: null,
+      searchMarker: null
     }
   },
   mounted() {
@@ -443,6 +484,107 @@ export default {
       this.userEmail = authService.getUserEmail()
     },
 
+    onSearchInput() {
+      if (this.searchTimeout) {
+        clearTimeout(this.searchTimeout)
+      }
+
+      if (this.searchQuery.trim().length < 3) {
+        this.searchResults = []
+        this.showSearchResults = false
+        return
+      }
+
+      this.searchTimeout = setTimeout(() => {
+        this.performSearch()
+      }, 300)
+    },
+
+    async performSearch() {
+      if (!this.searchQuery.trim() || this.searchQuery.trim().length < 3) {
+        return
+      }
+
+      this.isSearching = true
+      this.searchResults = []
+
+      try {
+        const query = encodeURIComponent(this.searchQuery.trim())
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=5&addressdetails=1&countrycodes=lt&bounded=1&viewbox=24.8,55.0,26.0,54.5`
+        )
+
+        if (!response.ok) {
+          throw new Error('Search failed')
+        }
+
+        const data = await response.json()
+
+        this.searchResults = data.filter(result =>
+          result.type === 'road' ||
+          result.type === 'residential' ||
+          result.type === 'pedestrian' ||
+          result.type === 'cycleway' ||
+          result.type === 'footway' ||
+          result.class === 'highway'
+        ).slice(0, 5)
+
+        this.showSearchResults = this.searchResults.length > 0
+
+      } catch (error) {
+        console.error('Search error:', error)
+        this.showToast('Search failed. Please try again.', 'error')
+      } finally {
+        this.isSearching = false
+      }
+    },
+
+    selectSearchResult(result) {
+      this.searchQuery = result.display_name
+      this.showSearchResults = false
+      this.goToLocation(parseFloat(result.lat), parseFloat(result.lon), result.display_name)
+    },
+
+    goToLocation(lat, lon, name) {
+      if (!this.map) return
+
+      if (this.searchMarker) {
+        this.map.removeLayer(this.searchMarker)
+      }
+
+      this.map.setView([lat, lon], 16)
+
+      this.searchMarker = L.marker([lat, lon])
+        .addTo(this.map)
+        .bindPopup(`<strong>${name}</strong>`)
+        .openPopup()
+
+      setTimeout(() => {
+        if (this.searchMarker) {
+          this.map.removeLayer(this.searchMarker)
+          this.searchMarker = null
+        }
+      }, 5000)
+
+      this.showToast(`Navigated to: ${name}`, 'success')
+    },
+
+    clearSearch() {
+      this.searchQuery = ''
+      this.searchResults = []
+      this.showSearchResults = false
+      if (this.searchTimeout) {
+        clearTimeout(this.searchTimeout)
+      }
+    },
+
+    hideSearchResults() {
+      setTimeout(() => {
+        this.showSearchResults = false
+      }, 200)
+    },
+
+    // All your existing methods continue here...
     initMap() {
       this.map = L.map('map').setView(this.mapCenter, 13)
 
@@ -2538,5 +2680,157 @@ button:hover {
 .submit-btn-modal:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+}
+
+.search-container {
+  position: fixed;
+  top: 20px;
+  left: 0px;
+  right: 80px;
+  z-index: 1000;
+  max-width: 400px;
+  padding: 0 48px;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 25px;
+  padding: 12px 16px;
+  overflow: hidden;
+}
+
+.search-icon {
+  color: #666;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  color: #333;
+  background: transparent;
+}
+
+.search-input::placeholder {
+  color: #999;
+}
+
+.clear-search-btn {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 4px;
+  margin-left: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.clear-search-btn:hover {
+  background-color: #f0f0f0;
+}
+
+.search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  margin-top: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1001;
+}
+
+.search-result-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s;
+}
+
+.search-result-item:hover {
+  background-color: #f8f9fa;
+}
+
+.search-result-item:last-child {
+  border-bottom: none;
+}
+
+.result-name {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.result-type {
+  font-size: 12px;
+  color: #666;
+  text-transform: capitalize;
+}
+
+.search-loading {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  margin-top: 8px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 1001;
+}
+
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #f0f0f0;
+  border-top: 2px solid #009688;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .search-container {
+    right: 20px;
+    max-width: calc(100% - 40px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .search-container {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    margin-bottom: 20px;
+    max-width: 500px;
+  }
 }
 </style>
