@@ -86,7 +86,7 @@ const goToLogin = () => {
 <template>
   <div class="auth-container">
     <div class="auth-form">
-      <h1>REGISTER</h1>
+      <h1 class="register-text">REGISTER</h1>
 
       <form @submit.prevent="handleSubmit">
         <div class="form-group">
@@ -102,12 +102,7 @@ const goToLogin = () => {
         </div>
 
         <div class="form-group">
-          <input
-            type="password"
-            v-model="confirmPassword"
-            placeholder="Re-Enter Your Password"
-            required
-          />
+          <input type="password" v-model="confirmPassword" placeholder="Re-Enter Your Password" required />
         </div>
 
         <div v-if="errorMessage" class="error-message">
@@ -120,10 +115,7 @@ const goToLogin = () => {
       </form>
 
       <div class="auth-footer">
-        <p>
-          Already registered?
-          <button type="button" class="text-button" @click="goToLogin">Login</button>
-        </p>
+        <button type="button" class="text-button" @click="goToLogin">Already registered?</button>
       </div>
     </div>
   </div>
@@ -134,24 +126,33 @@ const goToLogin = () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 80vh;
+  min-height: 100vh;
   padding: 20px;
+}
+
+.register-text {
+  font-family: Bayon, sans-serif;
+  font-weight: 400;
+  font-size: 64px;
+  line-height: 0;
+  letter-spacing: 0;
+  color: #272727;
+
+  margin-bottom: 42px;
 }
 
 .auth-form {
   width: 100%;
-  max-width: 400px;
-  padding: 20px;
-  background-color: #ffffff; /* Always white background */
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  /* padding: 20px; */
+  background-color: #ffffff;
 }
 
 h1 {
   text-align: center;
   margin-bottom: 30px;
   font-weight: 500;
-  color: #333; /* Dark text for headings regardless of theme */
+  color: #333;
+  /* Dark text for headings regardless of theme */
 }
 
 .form-group {
@@ -160,14 +161,14 @@ h1 {
 
 input {
   width: 100%;
-  padding: 15px;
-  border: 1px solid #ccc;
+  padding: 32px 24px;
+  border: 5px solid #272727;
   border-radius: 30px;
   font-size: 16px;
   outline: none;
   transition: border-color 0.3s;
-  background-color: #ffffff; /* Always white background */
-  color: #333; /* Always dark text for input */
+  background-color: #ffffff;
+  color: #333;
 }
 
 input:focus {
@@ -175,14 +176,20 @@ input:focus {
 }
 
 .text-button {
+  font-family: Inter, sans-serif;
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 0;
+  letter-spacing: 0;
   background: none;
   border: none;
-  color: #666;
+  color: #9A999F;
   cursor: pointer;
-  font-size: 14px;
   text-decoration: none;
   transition: color 0.3s;
-  padding: 0;
+
+  margin-top: 24px;
+  margin-bottom: 42px;
 }
 
 .text-button:hover {
@@ -192,20 +199,25 @@ input:focus {
 
 .submit-button {
   width: 100%;
-  padding: 15px;
-  background-color: #009688; /* Keep original color */
+  padding: 25px;
+  background-color: #038C7A;
+  /* Keep original color */
   color: white;
   border: none;
-  border-radius: 30px;
-  font-size: 16px;
-  font-weight: 500;
+  border-radius: 16px;
+  font-family: Inter, sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: -0.02em;
   cursor: pointer;
   transition: background-color 0.3s;
   margin-top: 15px;
 }
 
 .submit-button:hover {
-  background-color: #00796b; /* Keep original hover color */
+  background-color: #00796b;
+  /* Keep original hover color */
 }
 
 .submit-button:disabled {

@@ -45,7 +45,7 @@ const navLinks = computed(() => {
 
 <template>
   <div class="app-container">
-    <nav class="navigation">
+    <nav class="navigation desktop-only">
       <RouterLink v-for="link in navLinks" :key="link.path" :to="link.path">
         {{ link.name }}
       </RouterLink>
@@ -87,6 +87,11 @@ body {
   line-height: 1.6;
 }
 
+#app {
+  margin: 0;
+  padding: 0;
+}
+
 h1,
 h2,
 h3,
@@ -122,12 +127,18 @@ a {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
+.desktop-only {
+  display: none;
+}
+
 .content {
   flex: 1;
-  padding: 1.5rem;
-  max-width: 1200px;
-  margin: 0 auto;
+  padding: 0;
+  max-width: 100%;
+  margin: 0;
   width: 100%;
+  height: 100vh;
+  overflow: hidden;
 }
 
 nav a {
@@ -154,6 +165,10 @@ nav a.router-link-active {
     flex-direction: row;
   }
 
+  .desktop-only {
+    display: flex;
+  }
+
   .navigation {
     width: 220px;
     flex-direction: column;
@@ -168,8 +183,10 @@ nav a.router-link-active {
   }
 
   .content {
-    margin-left: 220px; /* Match navigation width */
-    padding: 2rem;
+    margin-left: 220px;
+    /* padding: 2rem; */
+    height: auto;
+    overflow: visible;
   }
 
   nav a {
