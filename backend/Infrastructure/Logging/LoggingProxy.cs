@@ -1,10 +1,5 @@
-using System;
-using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 
 namespace BikeRentalApp.Infrastructure.Logging
 {
@@ -17,7 +12,6 @@ namespace BikeRentalApp.Infrastructure.Logging
 
         protected override object Invoke(MethodInfo targetMethod, object[] args)
         {
-            Console.WriteLine($"Logging enabled: {ToggleService.Enabled}");
             if (ToggleService.Enabled)
             {
                 var user = HttpContextAccessor.HttpContext?.User;
