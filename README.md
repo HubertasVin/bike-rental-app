@@ -4,6 +4,8 @@ To run the backend, run these commands:
 cd backend
 dotnet add package Swashbuckle.AspNetCore
 dotnet add package Scrutor
+dotnet add package Serilog.AspNetCore
+dotnet add package Serilog.Sinks.File
 ```
 
 To run the frontend, run these commands:
@@ -31,7 +33,8 @@ builder.Services.Scan(scan =>
 
 
 2. Logging
-   backend/Logs/log-20250526.txt:
+   a. backend/Logs/log-20250526.txt:
    ```
 2025-05-26 23:30:16.148 +03:00 [INF] User=string; Roles=User; Time=2025-05-26 20:30:16Z; Method=IBikeService.GetAllBikesAsync
    ```
+   b. To toggle logging, call http://localhost:5000/api/logging?enabled=false or with true.
