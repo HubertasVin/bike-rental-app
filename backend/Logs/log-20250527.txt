@@ -1,0 +1,295 @@
+2025-05-27 22:18:28.685 +03:00 [INF] Executed DbCommand (13ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2025-05-27 22:18:28.891 +03:00 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+    "MigrationId" character varying(150) NOT NULL,
+    "ProductVersion" character varying(32) NOT NULL,
+    CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
+);
+2025-05-27 22:18:28.897 +03:00 [INF] Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long.
+2025-05-27 22:18:28.898 +03:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+LOCK TABLE "__EFMigrationsHistory" IN ACCESS EXCLUSIVE MODE
+2025-05-27 22:18:28.898 +03:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2025-05-27 22:18:28.901 +03:00 [INF] No migrations were applied. The database is already up to date.
+2025-05-27 22:18:28.954 +03:00 [INF] User profile is available. Using '/home/hubertas/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-27 22:18:29.028 +03:00 [INF] Now listening on: http://localhost:5270
+2025-05-27 22:18:29.029 +03:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-27 22:18:29.030 +03:00 [INF] Hosting environment: Development
+2025-05-27 22:18:29.030 +03:00 [INF] Content root path: /home/hubertas/Documents/backup-folder/Programming/CS/bike-rental-app/backend
+2025-05-27 22:18:44.419 +03:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5270/api/user/login - null null
+2025-05-27 22:18:44.467 +03:00 [WRN] Failed to determine the https port for redirect.
+2025-05-27 22:18:44.468 +03:00 [INF] CORS policy execution successful.
+2025-05-27 22:18:44.471 +03:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5270/api/user/login - 204 null null 52.5503ms
+2025-05-27 22:18:44.729 +03:00 [INF] Request starting HTTP/1.1 POST http://localhost:5270/api/user/login - application/json 50
+2025-05-27 22:18:44.758 +03:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenExpiredException: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '19/05/2025 21:33:49', Current time (UTC): '27/05/2025 19:18:44'.
+   at Microsoft.IdentityModel.Tokens.ValidatorUtilities.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.Tokens.Validators.ValidateLifetime(Nullable`1 notBefore, Nullable`1 expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateTokenPayloadAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2025-05-27 22:18:44.766 +03:00 [INF] Bearer was not authenticated. Failure message: IDX10223: Lifetime validation failed. The token is expired. ValidTo (UTC): '19/05/2025 21:33:49', Current time (UTC): '27/05/2025 19:18:44'.
+2025-05-27 22:18:44.767 +03:00 [INF] CORS policy execution successful.
+2025-05-27 22:18:44.768 +03:00 [INF] Executing endpoint 'UserController.Login (BikeRentalApp)'
+2025-05-27 22:18:44.779 +03:00 [INF] Route matched with {action = "Login", controller = "User"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Login(BikeRentalApp.Application.DTOs.LoginDTO) on controller UserController (BikeRentalApp).
+2025-05-27 22:18:44.825 +03:00 [INF] User=<anonymous>; Roles=<none>; Time=2025-05-27 19:18:44Z; Method=IUserService.LoginAsync
+2025-05-27 22:18:45.017 +03:00 [INF] Executed DbCommand (13ms) [Parameters=[@__email_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."Email", u."Name", u."PasswordHash", u."Roles"
+FROM "Users" AS u
+WHERE u."Email" = @__email_0
+LIMIT 1
+2025-05-27 22:18:45.026 +03:00 [INF] Executing UnauthorizedObjectResult, writing value of type 'System.String'.
+2025-05-27 22:18:45.031 +03:00 [INF] Executed action UserController.Login (BikeRentalApp) in 249.1933ms
+2025-05-27 22:18:45.031 +03:00 [INF] Executed endpoint 'UserController.Login (BikeRentalApp)'
+2025-05-27 22:18:45.035 +03:00 [INF] Request finished HTTP/1.1 POST http://localhost:5270/api/user/login - 401 null application/json; charset=utf-8 306.7113ms
+2025-05-27 22:18:59.461 +03:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5270/api/user/register - null null
+2025-05-27 22:18:59.463 +03:00 [INF] CORS policy execution successful.
+2025-05-27 22:18:59.464 +03:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5270/api/user/register - 204 null null 3.0403ms
+2025-05-27 22:18:59.717 +03:00 [INF] Request starting HTTP/1.1 POST http://localhost:5270/api/user/register - application/json 86
+2025-05-27 22:18:59.717 +03:00 [INF] CORS policy execution successful.
+2025-05-27 22:18:59.717 +03:00 [INF] Executing endpoint 'UserController.Register (BikeRentalApp)'
+2025-05-27 22:18:59.721 +03:00 [INF] Route matched with {action = "Register", controller = "User"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Register(BikeRentalApp.Application.DTOs.UserDTO) on controller UserController (BikeRentalApp).
+2025-05-27 22:18:59.765 +03:00 [INF] Executing BadRequestObjectResult, writing value of type 'Microsoft.AspNetCore.Mvc.ValidationProblemDetails'.
+2025-05-27 22:18:59.779 +03:00 [INF] Executed action UserController.Register (BikeRentalApp) in 57.9514ms
+2025-05-27 22:18:59.779 +03:00 [INF] Executed endpoint 'UserController.Register (BikeRentalApp)'
+2025-05-27 22:18:59.779 +03:00 [INF] Request finished HTTP/1.1 POST http://localhost:5270/api/user/register - 400 null application/problem+json; charset=utf-8 62.7821ms
+2025-05-27 22:19:46.585 +03:00 [INF] Application is shutting down...
+2025-05-27 22:20:15.800 +03:00 [INF] Executed DbCommand (14ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2025-05-27 22:20:16.011 +03:00 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+    "MigrationId" character varying(150) NOT NULL,
+    "ProductVersion" character varying(32) NOT NULL,
+    CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
+);
+2025-05-27 22:20:16.017 +03:00 [INF] Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long.
+2025-05-27 22:20:16.018 +03:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+LOCK TABLE "__EFMigrationsHistory" IN ACCESS EXCLUSIVE MODE
+2025-05-27 22:20:16.018 +03:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2025-05-27 22:20:16.021 +03:00 [INF] No migrations were applied. The database is already up to date.
+2025-05-27 22:20:16.077 +03:00 [INF] User profile is available. Using '/home/hubertas/.aspnet/DataProtection-Keys' as key repository; keys will not be encrypted at rest.
+2025-05-27 22:20:16.149 +03:00 [INF] Now listening on: http://localhost:5270
+2025-05-27 22:20:16.150 +03:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-27 22:20:16.150 +03:00 [INF] Hosting environment: Development
+2025-05-27 22:20:16.150 +03:00 [INF] Content root path: /home/hubertas/Documents/backup-folder/Programming/CS/bike-rental-app/backend
+2025-05-27 22:20:20.858 +03:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5270/api/user/register - null null
+2025-05-27 22:20:20.904 +03:00 [WRN] Failed to determine the https port for redirect.
+2025-05-27 22:20:20.905 +03:00 [INF] CORS policy execution successful.
+2025-05-27 22:20:20.907 +03:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5270/api/user/register - 204 null null 50.3446ms
+2025-05-27 22:20:21.160 +03:00 [INF] Request starting HTTP/1.1 POST http://localhost:5270/api/user/register - application/json 86
+2025-05-27 22:20:21.164 +03:00 [INF] CORS policy execution successful.
+2025-05-27 22:20:21.166 +03:00 [INF] Executing endpoint 'UserController.Register (BikeRentalApp)'
+2025-05-27 22:20:21.177 +03:00 [INF] Route matched with {action = "Register", controller = "User"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Register(BikeRentalApp.Application.DTOs.UserDTO) on controller UserController (BikeRentalApp).
+2025-05-27 22:20:21.227 +03:00 [INF] User=<anonymous>; Roles=<none>; Time=2025-05-27 19:20:21Z; Method=IUserService.CreateUserAsync
+2025-05-27 22:20:21.398 +03:00 [INF] Executed DbCommand (13ms) [Parameters=[@__email_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "Users" AS u
+    WHERE u."Email" = @__email_0)
+2025-05-27 22:20:21.917 +03:00 [INF] Executed DbCommand (43ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?', @p2='?', @p3='?', @p4='?' (DbType = Object)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "Users" ("Id", "Email", "Name", "PasswordHash", "Roles")
+VALUES (@p0, @p1, @p2, @p3, @p4);
+2025-05-27 22:20:21.930 +03:00 [INF] Executing OkObjectResult, writing value of type 'BikeRentalApp.Application.DTOs.UserDTO'.
+2025-05-27 22:20:21.936 +03:00 [INF] Executed action UserController.Register (BikeRentalApp) in 756.5583ms
+2025-05-27 22:20:21.937 +03:00 [INF] Executed endpoint 'UserController.Register (BikeRentalApp)'
+2025-05-27 22:20:21.941 +03:00 [INF] Request finished HTTP/1.1 POST http://localhost:5270/api/user/register - 200 null application/json; charset=utf-8 780.0538ms
+2025-05-27 22:20:22.207 +03:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5270/api/user/login - null null
+2025-05-27 22:20:22.209 +03:00 [INF] CORS policy execution successful.
+2025-05-27 22:20:22.209 +03:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5270/api/user/login - 204 null null 2.3768ms
+2025-05-27 22:20:22.484 +03:00 [INF] Request starting HTTP/1.1 POST http://localhost:5270/api/user/login - application/json 68
+2025-05-27 22:20:22.485 +03:00 [INF] CORS policy execution successful.
+2025-05-27 22:20:22.485 +03:00 [INF] Executing endpoint 'UserController.Login (BikeRentalApp)'
+2025-05-27 22:20:22.488 +03:00 [INF] Route matched with {action = "Login", controller = "User"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Login(BikeRentalApp.Application.DTOs.LoginDTO) on controller UserController (BikeRentalApp).
+2025-05-27 22:20:22.526 +03:00 [INF] User=<anonymous>; Roles=<none>; Time=2025-05-27 19:20:22Z; Method=IUserService.LoginAsync
+2025-05-27 22:20:22.556 +03:00 [INF] Executed DbCommand (1ms) [Parameters=[@__email_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."Email", u."Name", u."PasswordHash", u."Roles"
+FROM "Users" AS u
+WHERE u."Email" = @__email_0
+LIMIT 1
+2025-05-27 22:20:22.909 +03:00 [INF] Executing OkObjectResult, writing value of type 'BikeRentalApp.Application.DTOs.AuthDTO'.
+2025-05-27 22:20:22.911 +03:00 [INF] Executed action UserController.Login (BikeRentalApp) in 422.627ms
+2025-05-27 22:20:22.911 +03:00 [INF] Executed endpoint 'UserController.Login (BikeRentalApp)'
+2025-05-27 22:20:22.911 +03:00 [INF] Request finished HTTP/1.1 POST http://localhost:5270/api/user/login - 200 null application/json; charset=utf-8 427.1122ms
+2025-05-27 22:20:23.077 +03:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5270/api/Reservation/active - null null
+2025-05-27 22:20:23.077 +03:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5270/api/Rental/active - null null
+2025-05-27 22:20:23.077 +03:00 [INF] CORS policy execution successful.
+2025-05-27 22:20:23.078 +03:00 [INF] CORS policy execution successful.
+2025-05-27 22:20:23.078 +03:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5270/api/Reservation/active - 204 null null 1.1ms
+2025-05-27 22:20:23.078 +03:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5270/api/Rental/active - 204 null null 0.612ms
+2025-05-27 22:20:23.353 +03:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5270/api/zone - null null
+2025-05-27 22:20:23.353 +03:00 [INF] CORS policy execution successful.
+2025-05-27 22:20:23.354 +03:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5270/api/zone - 204 null null 0.765ms
+2025-05-27 22:20:23.354 +03:00 [INF] Request starting HTTP/1.1 GET http://localhost:5270/api/Reservation/active - null null
+2025-05-27 22:20:23.354 +03:00 [INF] Request starting HTTP/1.1 GET http://localhost:5270/api/Rental/active - null null
+2025-05-27 22:20:23.388 +03:00 [INF] CORS policy execution successful.
+2025-05-27 22:20:23.388 +03:00 [INF] CORS policy execution successful.
+2025-05-27 22:20:23.388 +03:00 [INF] Executing endpoint 'BikeRentalApp.Controllers.ReservationController.GetActive (BikeRentalApp)'
+2025-05-27 22:20:23.388 +03:00 [INF] Executing endpoint 'BikeRentalApp.Controllers.RentalController.GetActive (BikeRentalApp)'
+2025-05-27 22:20:23.390 +03:00 [INF] Route matched with {action = "GetActive", controller = "Reservation"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetActive() on controller BikeRentalApp.Controllers.ReservationController (BikeRentalApp).
+2025-05-27 22:20:23.390 +03:00 [INF] Route matched with {action = "GetActive", controller = "Rental"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetActive() on controller BikeRentalApp.Controllers.RentalController (BikeRentalApp).
+2025-05-27 22:20:23.393 +03:00 [INF] User=Hubertas; Roles=User; Time=2025-05-27 19:20:23Z; Method=IReservationService.GetActiveReservationForUserAsync
+2025-05-27 22:20:23.393 +03:00 [INF] User=Hubertas; Roles=User; Time=2025-05-27 19:20:23Z; Method=IRentalService.GetActiveRentalForUserAsync
+2025-05-27 22:20:23.453 +03:00 [INF] Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT r."Id", r."BikeId", r."EndTime", r."StartTime", r."UserId", b."Id", b."LockStatus", b."Model", b."PricePerMinute", b."Status", b."ZoneId", u."Id", u."Email", u."Name", u."PasswordHash", u."Roles"
+FROM "Reservations" AS r
+INNER JOIN "Bikes" AS b ON r."BikeId" = b."Id"
+INNER JOIN "Users" AS u ON r."UserId" = u."Id"
+WHERE r."UserId" = @__userId_0 AND r."EndTime" IS NULL
+LIMIT 1
+2025-05-27 22:20:23.453 +03:00 [INF] Executing OkObjectResult, writing value of type 'null'.
+2025-05-27 22:20:23.454 +03:00 [INF] Executed action BikeRentalApp.Controllers.ReservationController.GetActive (BikeRentalApp) in 63.5413ms
+2025-05-27 22:20:23.454 +03:00 [INF] Executed endpoint 'BikeRentalApp.Controllers.ReservationController.GetActive (BikeRentalApp)'
+2025-05-27 22:20:23.454 +03:00 [INF] Request finished HTTP/1.1 GET http://localhost:5270/api/Reservation/active - 204 null null 99.8826ms
+2025-05-27 22:20:23.455 +03:00 [INF] Request starting HTTP/1.1 GET http://localhost:5270/api/zone - null null
+2025-05-27 22:20:23.456 +03:00 [INF] CORS policy execution successful.
+2025-05-27 22:20:23.456 +03:00 [INF] Executing endpoint 'BikeRentalApp.Controllers.ZoneController.GetAll (BikeRentalApp)'
+2025-05-27 22:20:23.458 +03:00 [INF] Route matched with {action = "GetAll", controller = "Zone"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetAll() on controller BikeRentalApp.Controllers.ZoneController (BikeRentalApp).
+2025-05-27 22:20:23.461 +03:00 [INF] User=Hubertas; Roles=User; Time=2025-05-27 19:20:23Z; Method=IZoneService.GetAllZonesAsync
+2025-05-27 22:20:23.467 +03:00 [INF] Executed DbCommand (3ms) [Parameters=[@__userId_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT r."Id", r."BikeId", r."EndTime", r."EndZoneId", r."ReservationId", r."StartTime", r."StartZoneId", r."UserId", b."Id", b."LockStatus", b."Model", b."PricePerMinute", b."Status", b."ZoneId", u."Id", u."Email", u."Name", u."PasswordHash", u."Roles", z."Id", z."Address", z."Capacity", z."Latitude1", z."Latitude2", z."Longitude1", z."Longitude2", z."Name", z0."Id", z0."Address", z0."Capacity", z0."Latitude1", z0."Latitude2", z0."Longitude1", z0."Longitude2", z0."Name"
+FROM "Rentals" AS r
+INNER JOIN "Bikes" AS b ON r."BikeId" = b."Id"
+INNER JOIN "Users" AS u ON r."UserId" = u."Id"
+INNER JOIN "Zones" AS z ON r."StartZoneId" = z."Id"
+LEFT JOIN "Zones" AS z0 ON r."EndZoneId" = z0."Id"
+WHERE r."UserId" = @__userId_0 AND r."EndTime" IS NULL
+LIMIT 1
+2025-05-27 22:20:23.467 +03:00 [INF] Executing OkObjectResult, writing value of type 'null'.
+2025-05-27 22:20:23.467 +03:00 [INF] Executed action BikeRentalApp.Controllers.RentalController.GetActive (BikeRentalApp) in 77.4008ms
+2025-05-27 22:20:23.468 +03:00 [INF] Executed endpoint 'BikeRentalApp.Controllers.RentalController.GetActive (BikeRentalApp)'
+2025-05-27 22:20:23.468 +03:00 [INF] Request finished HTTP/1.1 GET http://localhost:5270/api/Rental/active - 204 null null 113.3859ms
+2025-05-27 22:20:23.487 +03:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT z."Id", z."Address", z."Capacity", z."Latitude1", z."Latitude2", z."Longitude1", z."Longitude2", z."Name", b."Id", b."LockStatus", b."Model", b."PricePerMinute", b."Status", b."ZoneId"
+FROM "Zones" AS z
+LEFT JOIN "Bikes" AS b ON z."Id" = b."ZoneId"
+ORDER BY z."Id"
+2025-05-27 22:20:23.507 +03:00 [INF] Executing OkObjectResult, writing value of type 'System.Linq.Enumerable+ListSelectIterator`2[[BikeRentalApp.Domain.Entities.Zone, BikeRentalApp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[BikeRentalApp.Application.DTOs.ZoneDTO, BikeRentalApp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-27 22:20:23.516 +03:00 [INF] Executed action BikeRentalApp.Controllers.ZoneController.GetAll (BikeRentalApp) in 57.0676ms
+2025-05-27 22:20:23.516 +03:00 [INF] Executed endpoint 'BikeRentalApp.Controllers.ZoneController.GetAll (BikeRentalApp)'
+2025-05-27 22:20:23.516 +03:00 [INF] Request finished HTTP/1.1 GET http://localhost:5270/api/zone - 200 null application/json; charset=utf-8 60.7926ms
+2025-05-27 22:20:27.731 +03:00 [INF] Request starting HTTP/1.1 GET http://localhost:5270/api/Reservation/active - null null
+2025-05-27 22:20:27.731 +03:00 [INF] Request starting HTTP/1.1 GET http://localhost:5270/api/zone - null null
+2025-05-27 22:20:27.731 +03:00 [INF] Request starting HTTP/1.1 GET http://localhost:5270/api/Rental/active - null null
+2025-05-27 22:20:27.732 +03:00 [INF] CORS policy execution successful.
+2025-05-27 22:20:27.732 +03:00 [INF] Executing endpoint 'BikeRentalApp.Controllers.ZoneController.GetAll (BikeRentalApp)'
+2025-05-27 22:20:27.732 +03:00 [INF] Route matched with {action = "GetAll", controller = "Zone"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetAll() on controller BikeRentalApp.Controllers.ZoneController (BikeRentalApp).
+2025-05-27 22:20:27.732 +03:00 [INF] CORS policy execution successful.
+2025-05-27 22:20:27.732 +03:00 [INF] CORS policy execution successful.
+2025-05-27 22:20:27.733 +03:00 [INF] Executing endpoint 'BikeRentalApp.Controllers.RentalController.GetActive (BikeRentalApp)'
+2025-05-27 22:20:27.733 +03:00 [INF] Executing endpoint 'BikeRentalApp.Controllers.ReservationController.GetActive (BikeRentalApp)'
+2025-05-27 22:20:27.733 +03:00 [INF] Route matched with {action = "GetActive", controller = "Rental"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetActive() on controller BikeRentalApp.Controllers.RentalController (BikeRentalApp).
+2025-05-27 22:20:27.733 +03:00 [INF] Route matched with {action = "GetActive", controller = "Reservation"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetActive() on controller BikeRentalApp.Controllers.ReservationController (BikeRentalApp).
+2025-05-27 22:20:27.734 +03:00 [INF] User=Hubertas; Roles=User; Time=2025-05-27 19:20:27Z; Method=IZoneService.GetAllZonesAsync
+2025-05-27 22:20:27.735 +03:00 [INF] User=Hubertas; Roles=User; Time=2025-05-27 19:20:27Z; Method=IRentalService.GetActiveRentalForUserAsync
+2025-05-27 22:20:27.735 +03:00 [INF] User=Hubertas; Roles=User; Time=2025-05-27 19:20:27Z; Method=IReservationService.GetActiveReservationForUserAsync
+2025-05-27 22:20:27.737 +03:00 [INF] Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT r."Id", r."BikeId", r."EndTime", r."StartTime", r."UserId", b."Id", b."LockStatus", b."Model", b."PricePerMinute", b."Status", b."ZoneId", u."Id", u."Email", u."Name", u."PasswordHash", u."Roles"
+FROM "Reservations" AS r
+INNER JOIN "Bikes" AS b ON r."BikeId" = b."Id"
+INNER JOIN "Users" AS u ON r."UserId" = u."Id"
+WHERE r."UserId" = @__userId_0 AND r."EndTime" IS NULL
+LIMIT 1
+2025-05-27 22:20:27.737 +03:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT z."Id", z."Address", z."Capacity", z."Latitude1", z."Latitude2", z."Longitude1", z."Longitude2", z."Name", b."Id", b."LockStatus", b."Model", b."PricePerMinute", b."Status", b."ZoneId"
+FROM "Zones" AS z
+LEFT JOIN "Bikes" AS b ON z."Id" = b."ZoneId"
+ORDER BY z."Id"
+2025-05-27 22:20:27.737 +03:00 [INF] Executing OkObjectResult, writing value of type 'null'.
+2025-05-27 22:20:27.738 +03:00 [INF] Executed action BikeRentalApp.Controllers.ReservationController.GetActive (BikeRentalApp) in 4.5914ms
+2025-05-27 22:20:27.738 +03:00 [INF] Executed endpoint 'BikeRentalApp.Controllers.ReservationController.GetActive (BikeRentalApp)'
+2025-05-27 22:20:27.738 +03:00 [INF] Executing OkObjectResult, writing value of type 'System.Linq.Enumerable+ListSelectIterator`2[[BikeRentalApp.Domain.Entities.Zone, BikeRentalApp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[BikeRentalApp.Application.DTOs.ZoneDTO, BikeRentalApp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-27 22:20:27.738 +03:00 [INF] Request finished HTTP/1.1 GET http://localhost:5270/api/Reservation/active - 204 null null 6.5039ms
+2025-05-27 22:20:27.738 +03:00 [INF] Executed action BikeRentalApp.Controllers.ZoneController.GetAll (BikeRentalApp) in 5.5431ms
+2025-05-27 22:20:27.738 +03:00 [INF] Executed endpoint 'BikeRentalApp.Controllers.ZoneController.GetAll (BikeRentalApp)'
+2025-05-27 22:20:27.738 +03:00 [INF] Request finished HTTP/1.1 GET http://localhost:5270/api/zone - 200 null application/json; charset=utf-8 7.0292ms
+2025-05-27 22:20:27.743 +03:00 [INF] Executed DbCommand (2ms) [Parameters=[@__userId_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT r."Id", r."BikeId", r."EndTime", r."EndZoneId", r."ReservationId", r."StartTime", r."StartZoneId", r."UserId", b."Id", b."LockStatus", b."Model", b."PricePerMinute", b."Status", b."ZoneId", u."Id", u."Email", u."Name", u."PasswordHash", u."Roles", z."Id", z."Address", z."Capacity", z."Latitude1", z."Latitude2", z."Longitude1", z."Longitude2", z."Name", z0."Id", z0."Address", z0."Capacity", z0."Latitude1", z0."Latitude2", z0."Longitude1", z0."Longitude2", z0."Name"
+FROM "Rentals" AS r
+INNER JOIN "Bikes" AS b ON r."BikeId" = b."Id"
+INNER JOIN "Users" AS u ON r."UserId" = u."Id"
+INNER JOIN "Zones" AS z ON r."StartZoneId" = z."Id"
+LEFT JOIN "Zones" AS z0 ON r."EndZoneId" = z0."Id"
+WHERE r."UserId" = @__userId_0 AND r."EndTime" IS NULL
+LIMIT 1
+2025-05-27 22:20:27.743 +03:00 [INF] Executing OkObjectResult, writing value of type 'null'.
+2025-05-27 22:20:27.743 +03:00 [INF] Executed action BikeRentalApp.Controllers.RentalController.GetActive (BikeRentalApp) in 10.2195ms
+2025-05-27 22:20:27.743 +03:00 [INF] Executed endpoint 'BikeRentalApp.Controllers.RentalController.GetActive (BikeRentalApp)'
+2025-05-27 22:20:27.743 +03:00 [INF] Request finished HTTP/1.1 GET http://localhost:5270/api/Rental/active - 204 null null 11.9534ms
+2025-05-27 22:20:32.906 +03:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5270/api/Reservation/active - null null
+2025-05-27 22:20:32.906 +03:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5270/api/Rental/active - null null
+2025-05-27 22:20:32.906 +03:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5270/api/zone - null null
+2025-05-27 22:20:32.907 +03:00 [INF] CORS policy execution successful.
+2025-05-27 22:20:32.907 +03:00 [INF] CORS policy execution successful.
+2025-05-27 22:20:32.907 +03:00 [INF] CORS policy execution successful.
+2025-05-27 22:20:32.907 +03:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5270/api/Rental/active - 204 null null 0.7967ms
+2025-05-27 22:20:32.907 +03:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5270/api/Reservation/active - 204 null null 0.7779ms
+2025-05-27 22:20:32.907 +03:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5270/api/zone - 204 null null 1.0173ms
+2025-05-27 22:20:33.165 +03:00 [INF] Request starting HTTP/1.1 GET http://localhost:5270/api/Reservation/active - null null
+2025-05-27 22:20:33.165 +03:00 [INF] Request starting HTTP/1.1 GET http://localhost:5270/api/Rental/active - null null
+2025-05-27 22:20:33.165 +03:00 [INF] Request starting HTTP/1.1 GET http://localhost:5270/api/zone - null null
+2025-05-27 22:20:33.166 +03:00 [INF] CORS policy execution successful.
+2025-05-27 22:20:33.166 +03:00 [INF] CORS policy execution successful.
+2025-05-27 22:20:33.166 +03:00 [INF] CORS policy execution successful.
+2025-05-27 22:20:33.166 +03:00 [INF] Executing endpoint 'BikeRentalApp.Controllers.ReservationController.GetActive (BikeRentalApp)'
+2025-05-27 22:20:33.166 +03:00 [INF] Executing endpoint 'BikeRentalApp.Controllers.RentalController.GetActive (BikeRentalApp)'
+2025-05-27 22:20:33.166 +03:00 [INF] Executing endpoint 'BikeRentalApp.Controllers.ZoneController.GetAll (BikeRentalApp)'
+2025-05-27 22:20:33.166 +03:00 [INF] Route matched with {action = "GetActive", controller = "Rental"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetActive() on controller BikeRentalApp.Controllers.RentalController (BikeRentalApp).
+2025-05-27 22:20:33.166 +03:00 [INF] Route matched with {action = "GetActive", controller = "Reservation"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetActive() on controller BikeRentalApp.Controllers.ReservationController (BikeRentalApp).
+2025-05-27 22:20:33.166 +03:00 [INF] Route matched with {action = "GetAll", controller = "Zone"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetAll() on controller BikeRentalApp.Controllers.ZoneController (BikeRentalApp).
+2025-05-27 22:20:33.167 +03:00 [INF] User=Hubertas; Roles=User; Time=2025-05-27 19:20:33Z; Method=IReservationService.GetActiveReservationForUserAsync
+2025-05-27 22:20:33.168 +03:00 [INF] User=Hubertas; Roles=User; Time=2025-05-27 19:20:33Z; Method=IRentalService.GetActiveRentalForUserAsync
+2025-05-27 22:20:33.168 +03:00 [INF] User=Hubertas; Roles=User; Time=2025-05-27 19:20:33Z; Method=IZoneService.GetAllZonesAsync
+2025-05-27 22:20:33.169 +03:00 [INF] Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT r."Id", r."BikeId", r."EndTime", r."StartTime", r."UserId", b."Id", b."LockStatus", b."Model", b."PricePerMinute", b."Status", b."ZoneId", u."Id", u."Email", u."Name", u."PasswordHash", u."Roles"
+FROM "Reservations" AS r
+INNER JOIN "Bikes" AS b ON r."BikeId" = b."Id"
+INNER JOIN "Users" AS u ON r."UserId" = u."Id"
+WHERE r."UserId" = @__userId_0 AND r."EndTime" IS NULL
+LIMIT 1
+2025-05-27 22:20:33.169 +03:00 [INF] Executing OkObjectResult, writing value of type 'null'.
+2025-05-27 22:20:33.169 +03:00 [INF] Executed action BikeRentalApp.Controllers.ReservationController.GetActive (BikeRentalApp) in 2.6994ms
+2025-05-27 22:20:33.169 +03:00 [INF] Executed endpoint 'BikeRentalApp.Controllers.ReservationController.GetActive (BikeRentalApp)'
+2025-05-27 22:20:33.169 +03:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT z."Id", z."Address", z."Capacity", z."Latitude1", z."Latitude2", z."Longitude1", z."Longitude2", z."Name", b."Id", b."LockStatus", b."Model", b."PricePerMinute", b."Status", b."ZoneId"
+FROM "Zones" AS z
+LEFT JOIN "Bikes" AS b ON z."Id" = b."ZoneId"
+ORDER BY z."Id"
+2025-05-27 22:20:33.169 +03:00 [INF] Request finished HTTP/1.1 GET http://localhost:5270/api/Reservation/active - 204 null null 4.5481ms
+2025-05-27 22:20:33.170 +03:00 [INF] Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT r."Id", r."BikeId", r."EndTime", r."EndZoneId", r."ReservationId", r."StartTime", r."StartZoneId", r."UserId", b."Id", b."LockStatus", b."Model", b."PricePerMinute", b."Status", b."ZoneId", u."Id", u."Email", u."Name", u."PasswordHash", u."Roles", z."Id", z."Address", z."Capacity", z."Latitude1", z."Latitude2", z."Longitude1", z."Longitude2", z."Name", z0."Id", z0."Address", z0."Capacity", z0."Latitude1", z0."Latitude2", z0."Longitude1", z0."Longitude2", z0."Name"
+FROM "Rentals" AS r
+INNER JOIN "Bikes" AS b ON r."BikeId" = b."Id"
+INNER JOIN "Users" AS u ON r."UserId" = u."Id"
+INNER JOIN "Zones" AS z ON r."StartZoneId" = z."Id"
+LEFT JOIN "Zones" AS z0 ON r."EndZoneId" = z0."Id"
+WHERE r."UserId" = @__userId_0 AND r."EndTime" IS NULL
+LIMIT 1
+2025-05-27 22:20:33.170 +03:00 [INF] Executing OkObjectResult, writing value of type 'System.Linq.Enumerable+ListSelectIterator`2[[BikeRentalApp.Domain.Entities.Zone, BikeRentalApp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null],[BikeRentalApp.Application.DTOs.ZoneDTO, BikeRentalApp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-27 22:20:33.170 +03:00 [INF] Executing OkObjectResult, writing value of type 'null'.
+2025-05-27 22:20:33.170 +03:00 [INF] Executed action BikeRentalApp.Controllers.RentalController.GetActive (BikeRentalApp) in 3.7687ms
+2025-05-27 22:20:33.170 +03:00 [INF] Executed action BikeRentalApp.Controllers.ZoneController.GetAll (BikeRentalApp) in 3.5613ms
+2025-05-27 22:20:33.170 +03:00 [INF] Executed endpoint 'BikeRentalApp.Controllers.ZoneController.GetAll (BikeRentalApp)'
+2025-05-27 22:20:33.170 +03:00 [INF] Request finished HTTP/1.1 GET http://localhost:5270/api/zone - 200 null application/json; charset=utf-8 4.9155ms
+2025-05-27 22:20:33.170 +03:00 [INF] Executed endpoint 'BikeRentalApp.Controllers.RentalController.GetActive (BikeRentalApp)'
+2025-05-27 22:20:33.171 +03:00 [INF] Request finished HTTP/1.1 GET http://localhost:5270/api/Rental/active - 204 null null 5.8992ms
+2025-05-27 22:20:41.576 +03:00 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5270/api/test - null null
+2025-05-27 22:20:41.576 +03:00 [INF] CORS policy execution successful.
+2025-05-27 22:20:41.576 +03:00 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5270/api/test - 204 null null 0.7131ms
+2025-05-27 22:20:41.827 +03:00 [INF] Request starting HTTP/1.1 GET http://localhost:5270/api/test - null null
+2025-05-27 22:20:41.828 +03:00 [INF] CORS policy execution successful.
+2025-05-27 22:20:41.828 +03:00 [INF] Executing endpoint 'BikeRendalApp.Controllers.TestController.Get (BikeRentalApp)'
+2025-05-27 22:20:41.829 +03:00 [INF] Route matched with {action = "Get", controller = "Test"}. Executing controller action with signature Microsoft.AspNetCore.Mvc.IActionResult Get() on controller BikeRendalApp.Controllers.TestController (BikeRentalApp).
+2025-05-27 22:20:41.830 +03:00 [INF] Executing OkObjectResult, writing value of type 'System.String'.
+2025-05-27 22:20:41.830 +03:00 [INF] Executed action BikeRendalApp.Controllers.TestController.Get (BikeRentalApp) in 0.5529ms
+2025-05-27 22:20:41.830 +03:00 [INF] Executed endpoint 'BikeRendalApp.Controllers.TestController.Get (BikeRentalApp)'
+2025-05-27 22:20:41.830 +03:00 [INF] Request finished HTTP/1.1 GET http://localhost:5270/api/test - 200 null application/json; charset=utf-8 2.5891ms
+2025-05-27 22:20:46.166 +03:00 [INF] Application is shutting down...

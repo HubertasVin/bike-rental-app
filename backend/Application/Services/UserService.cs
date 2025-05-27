@@ -74,7 +74,6 @@ public class UserService : IUserService
             Name = user.Name,
             Email = user.Email,
             Password = user.PasswordHash,
-            Role = user.Roles.Any() ? user.Roles.First().ToString() : "User",
         };
     }
 }
